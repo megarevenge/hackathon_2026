@@ -1,0 +1,12 @@
+[build]
+  publish = "public"
+  # No build command needed: public/ contains static HTML, CSS, and vanilla JS.
+  # Netlify is a static/serverless host and cannot run long-running Python servers like 'server.py'.
+
+# (Optional) If you deploy server.py to a cloud container (e.g., Render, Railway, Fly.io, Hugging Face Spaces):
+# Uncomment the redirect below to route API calls seamlessly from Netlify to your backend:
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://your-backend.railway.app/api/:splat"
+#   status = 200
+#   force = true
