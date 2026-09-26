@@ -7,6 +7,6 @@
 # IMPORTANT: Replace the URL below with your actual Railway service URL after deploying.
 [[redirects]]
   from = "/api/*"
-  to = "https://REPLACE-WITH-YOUR-RAILWAY-URL.railway.app/api/:splat"
+  to = "https://hackathon2026-production-4d9a.up.railway.app/api/:splat"
   status = 200
   force = true
