@@ -9,9 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY website ./website
-COPY src ./src
-COPY configs ./configs
-COPY weights ./weights
+COPY . .
+RUN python ensure_weights.py
 EXPOSE 8080
 CMD ["python", "website/server.py"]

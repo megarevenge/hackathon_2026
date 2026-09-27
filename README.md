@@ -15,7 +15,24 @@ same container. After deployment, processing runs on Railway, not your laptop.
 5. Open the generated HTTPS address and upload an MP4.
 
 No external model API or secondary server is needed. Both model checkpoints are
-included, and the Docker image installs CPU-only PyTorch and ffmpeg.
+included, and the Docker image installs CPU-only PyTorch and ffmpeg. If the
+weights folder was not committed, `ensure_weights.py` downloads both checkpoints
+during the image build and verifies their SHA256 hashes. Inference remains offline.
+
+## Fixing the missing weights build error
+
+Replace the repository files with the extracted contents of this updated ZIP,
+including `Dockerfile`, `.dockerignore`, and `ensure_weights.py`, then commit and
+push. Do not upload the ZIP itself as your application source.
+
+Keep the Railway Root Directory set to the folder that contains the Dockerfile,
+`requirements.txt`, `ensure_weights.py`, `website/`, `src/`, and `configs/`.
+If these are in your repository root, use `/` as the Root Directory.
+
+The build no longer has a `COPY weights ./weights` instruction. It copies the
+available application files and obtains any missing model files before startup.
+Missing `website/`, `src/`, or `configs/` still means the upload is incomplete.
+When bundled weights are present and valid, no model download is required.
 
 ## Limits and operation
 
@@ -43,7 +60,8 @@ Open http://localhost:8080. Health endpoint: `/health`.
 ## Validation
 
 The web/API checks cover upload, status polling, result download, video byte ranges,
-size rejection, and the exact 50 MB boundary. Docker image build and real model
+size rejection, and the exact 50 MB boundary. Model preparation was checked with bundled files and a simulated missing-folder
+download, including checksum rejection. Docker image build and real model
 inference have not been verified in the preparation environment.
 
 Railway references:
