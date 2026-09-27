@@ -19,7 +19,7 @@ import tornado.ioloop
 import tornado.web
 from src.config import load_config, validate_config
 
-MAX_BYTES = 50_000_000  # 50 MB; enforced for metadata and streamed uploads.
+MAX_BYTES = 200_000_000  # 200 MB; enforced for metadata and streamed uploads.
 MAX_SECONDS = 600
 PROFILES = {'camera.json': 'C3896 daytime framing · reviewed geometry v2',
             'uncalibrated.json': 'Other camera · configure before detecting events'}
