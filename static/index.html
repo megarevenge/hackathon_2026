@@ -1,196 +1,3130 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
-  <title>Video Studio</title>
-  <style>
-    :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#142721;background:#f3f6f2;font-synthesis:none}
-    *{box-sizing:border-box}body{margin:0}main{max-width:760px;margin:64px auto;padding:0 24px 48px}
-    header{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;letter-spacing:.03em;margin-bottom:52px}
-    .mark{display:grid;place-items:center;width:30px;height:30px;background:#1f5d43;color:white;border-radius:9px}
-    .eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;color:#4e735f;text-transform:uppercase}
-    h1{font-size:clamp(32px,6vw,46px);letter-spacing:-.055em;line-height:1.1;margin:12px 0 16px;font-weight:650}
-    .intro{color:#627069;font-size:16px;line-height:1.6;max-width:570px;margin:0 0 28px}
-    .card{background:#fff;border:1px solid #dfe6df;border-radius:20px;padding:28px;box-shadow:0 10px 40px #18352205}
-    .drop{display:flex;position:relative;flex-direction:column;align-items:center;justify-content:center;min-height:208px;padding:28px;text-align:center;border:1.5px dashed #b6c9ba;border-radius:13px;background:#fbfcfa;cursor:pointer;transition:background .15s,border-color .15s}
-    .drop:hover,.drop.drag{background:#edf5ee;border-color:#1f5d43}.drop:focus-within{outline:3px solid #aacbb4;outline-offset:3px}
-    .drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}.drop.disabled{opacity:.65;pointer-events:none}
-    .upload-icon{font-size:26px;width:48px;height:48px;border:1px solid #dce6dc;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;background:white}
-    .drop strong{font-size:15px;font-weight:600;word-break:break-word}.muted{color:#748077;font-size:12px;line-height:1.6}.drop .muted{margin-top:8px}
-    .row{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:20px;flex-wrap:wrap}
-    button,.download{border:0;background:#235f45;color:#fff;padding:13px 21px;border-radius:9px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
-    button:hover,.download:hover{background:#174a33}button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:3px solid #85b99b;outline-offset:3px}
-    #work{margin-top:28px;border-top:1px solid #edf0ec;padding-top:24px}.progress-label{font-size:13px;display:flex;justify-content:space-between;gap:12px;margin-bottom:10px}
-    progress{appearance:none;width:100%;height:7px;border:0;display:block;border-radius:20px;overflow:hidden;background:#e9eee8}progress::-webkit-progress-bar{background:#e9eee8}progress::-webkit-progress-value{background:#397657;border-radius:20px}progress::-moz-progress-bar{background:#397657;border-radius:20px}
-    .steps{display:flex;gap:16px;flex-wrap:wrap;margin:24px 0 12px;color:#8a948d;font-size:12px}.steps span::before{content:'○';margin-right:6px}.steps .active{color:#285e40;font-weight:650}.steps .done::before{content:'✓'}
-    #status{font-size:13px;line-height:1.6;overflow-wrap:anywhere}#status.error{color:#ae3434}#downloads{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}.download.secondary{background:#edf3ed;color:#285d42}.download.secondary:hover{background:#ddeadd}
-    #job{font:11px ui-monospace,monospace;color:#8b948e;overflow-wrap:anywhere;margin:16px 0 0}footer{font-size:12px;color:#77837a;line-height:1.7;margin-top:20px;padding:0 4px}
-    [hidden]{display:none!important}@media(max-width:520px){main{margin-top:28px;padding:0 16px 32px}header{margin-bottom:36px}.card{padding:20px}.row button{width:100%}.row>.muted{order:2}.drop{min-height:190px}}
-  </style>
-</head>
-<body>
-<main>
-  <header><span class="mark" aria-hidden="true">▸</span> VIDEO STUDIO</header>
-  <p class="eyebrow">Upload · Process · Download</p>
-  <h1>Your video. Two outputs.</h1>
-  <p class="intro">Upload a video, let the processor do its work, and download your JSON results and MP4 in one place.</p>
-  <section class="card" aria-label="Video upload">
-    <label class="drop" id="drop">
-      <span class="upload-icon" aria-hidden="true">↑</span>
-      <strong id="filename">Drop your video here, or browse</strong>
-      <span class="muted" id="filehint">MP4 or MOV · Up to 2 GiB</span>
-      <input id="file" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" aria-label="Choose an MP4 or MOV video">
-    </label>
-    <div class="row"><span class="muted" id="selection">Choose one video to get started.</span><button id="start" disabled>Upload & process →</button></div>
-    <section id="work" hidden aria-label="Job progress">
-      <div class="progress-label"><span id="upload-label">Upload progress</span><strong id="percentage">0.00%</strong></div>
-      <progress id="bar" max="100" value="0" aria-label="Video upload progress"></progress>
-      <div class="steps"><span id="pending">Pending</span><span id="processing">Processing</span><span id="completed">Completed</span></div>
-      <div id="status" role="status" aria-live="polite"></div>
-      <div id="downloads" hidden><a id="json" class="download secondary" download="result.json">↓ Download JSON</a><a id="mp4" class="download" download="processed_video.mp4">↓ Download MP4</a></div>
-      <p id="job"></p>
-    </section>
-  </section>
-  <footer>Demo processor: a 10-second MP4 preview and sample metadata. Outputs are kept for <span id="retention">24 hours</span>. Keep this tab open during upload; processing continues after you leave.</footer>
-</main>
-<script>
-'use strict';
-const $ = id => document.getElementById(id);
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-let selected = null, busy = false, currentJob = null;
-let limits = {max_upload_bytes: 2147483648, chunk_bytes: 10485760, retention_seconds:86400};
-const storageKey = 'video-studio-job-v1';
-function remember(value) { try { localStorage.setItem(storageKey, JSON.stringify(value)); } catch {} }
-function recall() { try { return JSON.parse(localStorage.getItem(storageKey)); } catch { return null; } }
-function forget() { try { localStorage.removeItem(storageKey); } catch {} }
-function message(text, error=false) { $('status').textContent=text; $('status').className=error?'error':''; }
-function percent(bytes,total) { const value=Math.min(100, bytes/total*100); $('bar').value=value; $('percentage').textContent=value.toFixed(2)+'%'; }
-function setBusy(value) { busy=value; $('file').disabled=value; $('drop').classList.toggle('disabled',value); $('start').disabled=value||!selected; }
-function step(state) { for(const name of ['pending','processing','completed']) { $(name).className=name===state?'active':''; } if(state==='completed') for(const name of ['pending','processing','completed']) $(name).classList.add('done'); }
-function showJob(id) { currentJob=id; $('job').textContent='Job '+id; $('work').hidden=false; }
-function choose(file) {
-  if(busy||!file) return;
-  $('work').hidden=false;
-  if(!/\.(mp4|mov)$/i.test(file.name)||file.size===0||file.size>limits.max_upload_bytes) {
-    selected=null; $('start').disabled=true; message('Choose a non-empty MP4 or MOV file up to 2 GiB.',true); return;
-  }
-  selected=file; $('filename').textContent=file.name; $('filehint').textContent=(file.size/1024**2).toFixed(2)+' MiB';
-  $('selection').textContent='Ready to upload'; $('start').disabled=false;
-  message('Ready to upload your video.');
-}
-$('file').addEventListener('change',event=>choose(event.target.files[0]));
-for(const type of ['dragenter','dragover']) $('drop').addEventListener(type,event=>{event.preventDefault();if(!busy)$('drop').classList.add('drag');});
-for(const type of ['dragleave','drop']) $('drop').addEventListener(type,event=>{event.preventDefault();$('drop').classList.remove('drag');});
-$('drop').addEventListener('drop',event=>choose(event.dataTransfer.files[0]));
-// Prevent dropping a file outside the box from navigating away from an active job.
-window.addEventListener('dragover',event=>event.preventDefault());
-window.addEventListener('drop',event=>event.preventDefault());
-async function api(url,options={}) {
-  const response=await fetch(url,{credentials:'same-origin',signal:AbortSignal.timeout(15000),...options});
-  let body; try { body=await response.json(); } catch { body={detail:'Unexpected server response'}; }
-  if(!response.ok) { const error=new Error(typeof body.detail==='string'?body.detail:'Request failed ('+response.status+')');error.status=response.status;throw error; }
-  return body;
-}
-function sendChunk(file,id,offset,end) {
-  return new Promise((resolve,reject)=>{
-    const xhr=new XMLHttpRequest();
-    xhr.open('POST','/api/upload?job_id='+encodeURIComponent(id)+'&offset='+offset);
-    xhr.setRequestHeader('Content-Type','application/octet-stream');
-    xhr.timeout=240000;
-    xhr.upload.onprogress=event=>{if(event.lengthComputable)percent(offset+event.loaded,file.size);};
-    xhr.onload=()=>{
-      let result;try{result=JSON.parse(xhr.responseText);}catch{result={detail:'Unexpected upload response'};}
-      if(xhr.status>=200&&xhr.status<300)resolve(result);
-      else{const error=new Error(typeof result.detail==='string'?result.detail:'Upload rejected');error.status=xhr.status;reject(error);}
-    };
-    xhr.onerror=()=>reject(new Error('Network interrupted'));
-    xhr.ontimeout=()=>reject(new Error('Upload chunk timed out'));
-    xhr.send(file.slice(offset,end));
-  });
-}
-async function uploadFile(file,id,initialOffset) {
-  let offset=initialOffset, failures=0;
-  while(offset<file.size) {
-    percent(offset,file.size); message('Uploading your video…');
-    try {
-      const result=await sendChunk(file,id,offset,Math.min(offset+limits.chunk_bytes,file.size));
-      offset=result.received; failures=0;
-    } catch(error) {
-      if(error.status&&error.status<500&&error.status!==409)throw error;
-      if(++failures>5)throw new Error('Upload interrupted. Select the same file and click Retry upload to resume.');
-      message('Connection interrupted. Checking saved bytes before retry '+failures+' of 5…');
-      await sleep(Math.min(1000*2**failures,10000));
-      // Response loss does not imply write failure: reconcile before resending bytes.
-      try {
-        const saved=await api('/api/status/'+id);
-        if(saved.status==='failed')throw Object.assign(new Error(saved.error||'Upload failed'),{terminal:true});
-        if(saved.phase!=='uploading')return;
-        offset=saved.received;
-      } catch(checkError) {
-        if(checkError.terminal||checkError.status===404||checkError.status===401)throw checkError;
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta
+      name="description"
+      content="RoadLens traffic-video analysis: team, methodology, exploratory analysis, sample results, local demo, and report."
+    />
+    <title>RoadLens · Traffic video, explained</title>
+    <style>
+      :root {
+        --paper: #f4f6f1;
+        --white: #fff;
+        --ink: #172f26;
+        --muted: #64756b;
+        --line: #dce4da;
+        --green: #285d44;
+        --light: #e7efe5;
+        --gold: #bc8c43;
+        --danger: #a63835;
+        --radius: 18px;
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        font-synthesis: none;
       }
-    }
-  }
-  percent(file.size,file.size);
-}
-async function poll(id) {
-  let failures=0;
-  while(true) {
-    try {
-      const state=await api('/api/status/'+id); failures=0; step(state.status);
-      if(state.phase==='uploading') {
-        percent(state.received,state.size); message('Upload paused. Select the same file to resume from the saved position.');
-        $('start').textContent='Resume upload →'; return;
+      * {
+        box-sizing: border-box;
       }
-      percent(1,1); $('upload-label').textContent='Upload complete';
-      if(state.status==='completed') {
-        message('Completed. Both files are ready to download.'); $('downloads').hidden=false;
-        $('json').href='/api/download/'+id+'/json'; $('mp4').href='/api/download/'+id+'/mp4';
-        $('start').textContent='Upload another video →'; forget(); return;
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 100px;
       }
-      if(state.status==='failed') {forget();throw Object.assign(new Error(state.error||'Processing failed'),{terminal:true});}
-      message(state.status==='processing'?'Processing your video. You can leave this page and return later.':'Pending — waiting for the processor.');
-    } catch(error) {
-      if(error.terminal||error.status===401||error.status===404)throw error;
-      if(++failures>15)throw new Error('Cannot reach the server. Reload this page to check the saved job.');
-      message('Connection lost. Reconnecting to your job…');
-    }
-    await sleep(2000);
-  }
-}
-$('start').addEventListener('click',async()=>{
-  if(!selected||busy)return;
-  setBusy(true);$('downloads').hidden=true;$('upload-label').textContent='Upload progress';step('pending');
-  try {
-    let saved=recall(), id, offset=0;
-    // The user reselects the original file after reload; browsers cannot restore file access.
-    if(saved&&saved.name===selected.name&&saved.size===selected.size&&saved.lastModified===selected.lastModified) {
-      try {
-        const state=await api('/api/status/'+saved.id);
-        if(state.phase==='uploading'){id=saved.id;offset=state.received;}
-        else if(state.status!=='failed'){showJob(saved.id);await poll(saved.id);return;}
+      body {
+        margin: 0;
       }
-      catch(error){if(error.status!==404)throw error;}
-    }
-    if(!id) {
-      const result=await api('/api/uploads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename:selected.name,size:selected.size})});
-      id=result.job_id;
-    }
-    remember({id,name:selected.name,size:selected.size,lastModified:selected.lastModified});showJob(id);
-    await uploadFile(selected,id,offset);await poll(id);
-  } catch(error) {message(error.message,true);$('start').textContent='Retry upload →';}
-  finally {setBusy(false);}
-});
-(async()=>{
-  try {
-    limits=await api('/api/config');$('retention').textContent=(limits.retention_seconds/3600).toFixed(1).replace(/\.0$/,'')+' hours';
-    const saved=recall();
-    if(saved&&/^[0-9a-f-]{36}$/.test(saved.id)) {showJob(saved.id);setBusy(true);await poll(saved.id);}
-  } catch(error) {if(error.status===404)forget();$('work').hidden=false;message(error.message,true);}
-  finally {setBusy(false);}
-})();
-</script>
-</body>
+      a {
+        color: var(--green);
+        text-underline-offset: 4px;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button,
+      a,
+      input,
+      select,
+      textarea,
+      summary {
+        -webkit-tap-highlight-color: transparent;
+      }
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible,
+      summary:focus-visible {
+        outline: 3px solid #95bd99;
+        outline-offset: 4px;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.48;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .wrap {
+        max-width: 1160px;
+        margin: auto;
+        padding: 0 32px;
+      }
+      .skip {
+        position: absolute;
+        left: 12px;
+        top: -60px;
+        z-index: 99;
+        background: white;
+        padding: 12px;
+      }
+      .skip:focus {
+        top: 12px;
+      }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: rgba(244, 246, 241, 0.96);
+        border-bottom: 1px solid var(--line);
+      }
+      .navrow {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 30px;
+        min-height: 80px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        font-weight: 750;
+        letter-spacing: -0.03em;
+        font-size: 18px;
+        white-space: nowrap;
+      }
+      .mark {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 32px;
+        background: var(--green);
+        color: white;
+        border-radius: 8px;
+        font-size: 20px;
+      }
+      .navlinks {
+        display: flex;
+        gap: 23px;
+        align-items: center;
+        overflow: auto;
+        padding: 12px 3px;
+      }
+      .navlinks a {
+        font-size: 12px;
+        font-weight: 650;
+        text-decoration: none;
+        white-space: nowrap;
+        color: var(--muted);
+      }
+      .navlinks a:hover {
+        color: var(--ink);
+      }
+      .navlinks .nav-demo {
+        color: var(--green);
+        border: 1px solid #bbceb9;
+        border-radius: 7px;
+        padding: 8px 12px;
+      }
+      .hero {
+        padding: 76px 0 65px;
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 72px;
+        align-items: center;
+      }
+      .eyebrow,
+      .section-number {
+        font:
+          650 11px ui-monospace,
+          SFMono-Regular,
+          Consolas,
+          monospace;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: var(--green);
+      }
+      .eyebrow {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        background: var(--green);
+        border-radius: 50%;
+      }
+      h1 {
+        font-size: clamp(38px, 5.5vw, 66px);
+        letter-spacing: -0.055em;
+        font-weight: 620;
+        line-height: 1.06;
+        margin: 19px 0 23px;
+      }
+      h1 span {
+        color: #6b8b70;
+      }
+      p {
+        line-height: 1.7;
+      }
+      h2 {
+        font-size: 32px;
+        line-height: 1.2;
+        letter-spacing: -0.035em;
+        margin: 10px 0 12px;
+        font-weight: 620;
+      }
+      h3 {
+        font-size: 17px;
+        letter-spacing: -0.015em;
+        margin: 0 0 10px;
+      }
+      h4 {
+        font-size: 13px;
+        margin: 0 0 8px;
+      }
+      .lead {
+        font-size: 16px;
+        color: var(--muted);
+        max-width: 540px;
+        margin: 0 0 25px;
+      }
+      .muted {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+      .small {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid var(--green);
+        background: var(--green);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 9px;
+        padding: 12px 19px;
+        font-size: 13px;
+        font-weight: 650;
+        min-height: 44px;
+      }
+      .btn:hover {
+        background: #1d4935;
+      }
+      .btn.secondary {
+        color: var(--green);
+        border-color: var(--line);
+        background: var(--white);
+      }
+      .btn.secondary:hover {
+        background: var(--light);
+      }
+      .hero-panel {
+        border: 1px solid var(--line);
+        background: var(--white);
+        border-radius: 20px;
+        padding: 26px;
+      }
+      .panel-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--line);
+        font-size: 12px;
+      }
+      .tag {
+        font:
+          11px ui-monospace,
+          monospace;
+        background: var(--light);
+        color: var(--green);
+        padding: 5px 8px;
+        border-radius: 5px;
+        display: inline-block;
+      }
+      .hero-item {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        padding: 20px 0;
+        border-bottom: 1px solid #edf1eb;
+      }
+      .hero-item:last-child {
+        padding-bottom: 0;
+        border: 0;
+      }
+      .hero-index {
+        font:
+          12px ui-monospace,
+          monospace;
+        color: #8ba48b;
+        padding-top: 3px;
+      }
+      .hero-item strong {
+        font-size: 14px;
+        font-weight: 650;
+      }
+      .hero-item p {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 5px 0 0;
+      }
+      .project-note {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        padding: 17px 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .project-note strong {
+        color: var(--ink);
+        white-space: nowrap;
+      }
+      .chapter {
+        padding: 72px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 28px;
+        margin-bottom: 28px;
+      }
+      .section-head p {
+        max-width: 480px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .section-head h2 {
+        margin-bottom: 0;
+      }
+      .grid {
+        display: grid;
+        gap: 18px;
+      }
+      .cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .card {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 24px;
+        min-width: 0;
+      }
+      .card p:last-child {
+        margin-bottom: 0;
+      }
+      .field-label {
+        font:
+          600 10px ui-monospace,
+          monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 8px;
+      }
+      .blank {
+        min-height: 44px;
+        border-bottom: 1px dashed #bed0bc;
+        padding: 9px 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .empty {
+        border: 1px dashed #bdcbb9;
+        border-radius: 10px;
+        background: #fafbf8;
+        color: #73846f;
+        min-height: 145px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 22px;
+        font-size: 12px;
+        line-height: 1.65;
+      }
+      .portrait {
+        aspect-ratio: 4/3;
+        width: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 21px;
+      }
+      .portrait.empty {
+        min-height: 0;
+      }
+      .member-role {
+        font-size: 12px;
+        color: var(--green);
+        margin: 0 0 18px;
+      }
+      .member-links {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+        font-size: 12px;
+      }
+      .missing-link {
+        color: #869480;
+        border-bottom: 1px dashed #bdcbb9;
+      }
+      .member-card h3 {
+        min-height: 22px;
+      }
+      .project-card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .project-card img {
+        width: 100%;
+        aspect-ratio: 16/9;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+      .subhead {
+        margin: 34px 0 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+      .subhead h3 {
+        margin: 0;
+      }
+      .pipeline {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin: 24px 0;
+      }
+      .stage {
+        position: relative;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 20px;
+        background: #fafbf8;
+      }
+      .stage-number {
+        display: block;
+        font:
+          11px ui-monospace,
+          monospace;
+        color: #769074;
+        margin-bottom: 14px;
+      }
+      .stage p {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 7px 0 0;
+      }
+      .stage.learned {
+        background: var(--light);
+        border-color: #b8ccb3;
+      }
+      .stage h3 {
+        font-size: 15px;
+      }
+      .legend {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .legend span {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .swatch {
+        width: 9px;
+        height: 9px;
+        display: inline-block;
+        border-radius: 3px;
+        background: var(--green);
+      }
+      .model-table,
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .model-table th,
+      .model-table td,
+      .data-table th,
+      .data-table td {
+        text-align: left;
+        padding: 12px 10px;
+        border-bottom: 1px solid #edf0e9;
+        vertical-align: top;
+      }
+      .model-table th,
+      .data-table th {
+        font-weight: 650;
+        color: var(--muted);
+      }
+      .table-scroll {
+        overflow-x: auto;
+      }
+      .notice {
+        border-left: 3px solid #b99a59;
+        background: #faf6ec;
+        border-radius: 0 8px 8px 0;
+        padding: 14px 17px;
+        color: #76623a;
+        font-size: 12px;
+        line-height: 1.7;
+        margin-top: 20px;
+      }
+      .selector {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .selector label {
+        font-size: 12px;
+        font-weight: 650;
+      }
+      .control {
+        border: 1px solid #cbd8c6;
+        border-radius: 8px;
+        background: white;
+        color: var(--ink);
+        padding: 10px 12px;
+        min-height: 42px;
+        max-width: 100%;
+      }
+      .selector select {
+        min-width: 235px;
+      }
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .metric {
+        padding: 19px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+      .metric strong {
+        display: block;
+        font-size: 24px;
+        letter-spacing: -0.03em;
+        margin-top: 10px;
+        font-weight: 600;
+      }
+      .metric .small {
+        display: block;
+        margin-top: 5px;
+      }
+      .chart-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .chart-title h3 {
+        font-size: 14px;
+        margin: 0;
+      }
+      .chart {
+        min-height: 170px;
+      }
+      .chart svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .chart .empty {
+        min-height: 170px;
+      }
+      .chart-caption {
+        font-size: 11px;
+        color: var(--muted);
+        margin: 12px 0 0;
+      }
+      .figure-image {
+        width: 100%;
+        height: 230px;
+        object-fit: contain;
+        border-radius: 9px;
+        background: #f8faf5;
+      }
+      .visual-grid {
+        margin-top: 18px;
+      }
+      .video {
+        display: block;
+        width: 100%;
+        max-height: 460px;
+        background: #0c1a14;
+        border-radius: 11px;
+      }
+      .result-controls {
+        margin-top: 15px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .status-pill {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        padding: 6px 10px;
+        border-radius: 20px;
+      }
+      .event-list {
+        max-height: 245px;
+        overflow: auto;
+        margin-top: 15px;
+      }
+      .event-button {
+        display: block;
+        width: 100%;
+        padding: 9px 0;
+        background: none;
+        border: 0;
+        border-bottom: 1px solid #edf0e9;
+        text-align: left;
+        font-size: 12px;
+        color: var(--green);
+      }
+      .event-button:hover {
+        text-decoration: underline;
+      }
+      .class-list {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .class-chip {
+        font-size: 11px;
+        background: #edf3e8;
+        border: 1px solid #d7e4d1;
+        padding: 7px 10px;
+        border-radius: 6px;
+      }
+      .class-chip.unsupported {
+        color: #7c7c70;
+        background: #f3f3ef;
+        border-style: dashed;
+      }
+      .field-stack {
+        display: grid;
+        gap: 14px;
+      }
+      .failure {
+        border-left: 3px solid #be9978;
+      }
+      .report-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 22px;
+      }
+      .report-box {
+        padding: 16px 0;
+        border-top: 1px solid var(--line);
+      }
+      .report-box .blank {
+        min-height: 85px;
+      }
+      .link-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px 0;
+        border-bottom: 1px solid #e8eee3;
+      }
+      .link-row:last-child {
+        border-bottom: 0;
+      }
+      .link-row strong {
+        display: block;
+        font-size: 14px;
+      }
+      .link-row small {
+        font-size: 12px;
+        color: var(--muted);
+        display: block;
+        margin-top: 4px;
+      }
+      .link-value {
+        font-size: 12px;
+        max-width: 50%;
+        overflow-wrap: anywhere;
+      }
+      .demo-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+      }
+      .demo-limits {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 8px 0 22px;
+      }
+      .demo-notice {
+        font-size: 13px;
+        line-height: 1.7;
+        padding: 16px;
+        border-radius: 10px;
+        background: var(--light);
+        margin-bottom: 18px;
+      }
+      .demo-settings {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+      .demo-settings label {
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .demo-settings .control {
+        display: block;
+        width: 100%;
+        margin-top: 6px;
+      }
+      details {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      summary {
+        cursor: pointer;
+        padding: 10px 0;
+      }
+      textarea.control {
+        width: 100%;
+        min-height: 170px;
+        font:
+          12px ui-monospace,
+          monospace;
+      }
+      .drop {
+        position: relative;
+        border: 1.5px dashed #a8c0a2;
+        border-radius: 13px;
+        min-height: 180px;
+        background: #fafcf7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        padding: 25px;
+        cursor: pointer;
+      }
+      .drop:hover,
+      .drop.drag {
+        background: #edf5e9;
+      }
+      .drop:focus-within {
+        outline: 3px solid #95bd99;
+        outline-offset: 3px;
+      }
+      .drop input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+      .drop.disabled {
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      .upload-icon {
+        font-size: 25px;
+        margin-bottom: 13px;
+        color: var(--green);
+      }
+      .drop strong {
+        font-size: 14px;
+        word-break: break-word;
+      }
+      .drop small {
+        margin-top: 9px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .demo-action {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-top: 18px;
+      }
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        font-size: 12px;
+        margin: 25px 0 10px;
+      }
+      progress {
+        appearance: none;
+        width: 100%;
+        height: 7px;
+        border: 0;
+        border-radius: 10px;
+        background: #e6ece1;
+        overflow: hidden;
+      }
+      progress::-webkit-progress-bar {
+        background: #e6ece1;
+      }
+      progress::-webkit-progress-value {
+        background: #35704c;
+      }
+      progress::-moz-progress-bar {
+        background: #35704c;
+      }
+      .steps {
+        display: flex;
+        gap: 24px;
+        font-size: 12px;
+        color: #83927c;
+        margin: 20px 0 12px;
+      }
+      .steps span:before {
+        content: "○";
+        margin-right: 6px;
+      }
+      .steps .active {
+        color: var(--green);
+        font-weight: 700;
+      }
+      .steps .done:before {
+        content: "✓";
+      }
+      #status {
+        font-size: 13px;
+        line-height: 1.7;
+        overflow-wrap: anywhere;
+      }
+      .error {
+        color: var(--danger) !important;
+      }
+      #job {
+        font:
+          10px ui-monospace,
+          monospace;
+        color: #819279;
+        overflow-wrap: anywhere;
+      }
+      #downloads {
+        margin: 18px 0;
+      }
+      .demo-results {
+        margin-top: 25px;
+        display: grid;
+        gap: 18px;
+      }
+      .demo-results .card {
+        background: #fbfcf9;
+      }
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 25px;
+        padding: 34px 0 50px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .footer a {
+        font-size: 12px;
+      }
+      .completion-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding-left: 18px;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      .print-btn {
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--green);
+        padding: 9px 13px;
+        border-radius: 8px;
+        font-size: 12px;
+      }
+      .axis-label {
+        fill: #75836d;
+        font: 10px system-ui;
+      }
+      .chart-grid {
+        stroke: #e6ebdf;
+        stroke-width: 1;
+      }
+      .table-empty {
+        padding: 20px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      @media (max-width: 900px) {
+        .navrow {
+          display: block;
+          padding-top: 14px;
+        }
+        .brand {
+          font-size: 16px;
+        }
+        .navlinks {
+          gap: 20px;
+          padding: 13px 0;
+        }
+        .hero {
+          gap: 28px;
+          padding-top: 46px;
+        }
+        .cols-3 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .pipeline {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .section-head {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .metric-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 620px) {
+        .wrap {
+          padding: 0 20px;
+        }
+        .hero {
+          grid-template-columns: 1fr;
+          gap: 26px;
+          padding: 40px 0 30px;
+        }
+        .hero-panel {
+          padding: 20px;
+        }
+        .hero-item {
+          padding: 14px 0;
+        }
+        h1 {
+          font-size: 43px;
+        }
+        .chapter {
+          padding: 48px 0;
+        }
+        .cols-2,
+        .cols-3,
+        .report-grid,
+        .demo-settings {
+          grid-template-columns: 1fr;
+        }
+        .card {
+          padding: 20px;
+        }
+        .pipeline {
+          gap: 10px;
+        }
+        .stage {
+          padding: 14px;
+        }
+        .project-note {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 5px;
+        }
+        h2 {
+          font-size: 29px;
+        }
+        .demo-action {
+          align-items: stretch;
+          flex-direction: column;
+        }
+        .selector select {
+          width: 100%;
+        }
+        .footer {
+          flex-direction: column;
+        }
+        .completion-list {
+          grid-template-columns: 1fr;
+        }
+        .link-row {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .link-value {
+          max-width: 100%;
+        }
+        .hero-panel .small {
+          font-size: 11px;
+        }
+        .section-head {
+          margin-bottom: 24px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+      @media print {
+        body {
+          background: white;
+          color: black;
+        }
+        .topbar,
+        .hero,
+        .project-note,
+        .chapter:not(#report),
+        .footer,
+        .print-btn {
+          display: none !important;
+        }
+        .wrap {
+          padding: 0;
+          max-width: none;
+        }
+        #report {
+          padding: 0;
+          border: 0;
+        }
+        #report .card {
+          border: 0;
+          padding: 0;
+        }
+        #report h2 {
+          font-size: 25px;
+        }
+        .report-grid {
+          gap: 14px;
+        }
+        .report-box {
+          break-inside: avoid;
+        }
+        .report-box p {
+          font-size: 11px;
+          line-height: 1.45;
+        }
+        @page {
+          size: A4;
+          margin: 18mm;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="topbar">
+      <div class="wrap navrow">
+        <a class="brand" href="#main"
+          ><span class="mark" aria-hidden="true">↗</span> RoadLens</a
+        >
+        <nav class="navlinks" aria-label="Main navigation">
+          <a href="#team">Team</a><a href="#approach">Approach</a
+          ><a href="#eda">EDA</a><a href="#results">Results</a
+          ><a class="nav-demo" href="#demo">Live demo ↗</a
+          ><a href="#report">Report</a><a href="#links">Links</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main" class="wrap">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <div class="eyebrow">
+            <span class="dot"></span> Traffic analysis · Research prototype
+          </div>
+          <h1 id="hero-title">
+            From traffic footage<br />to <span>inspectable events.</span>
+          </h1>
+          <p class="lead">
+            A closer look at how people and vehicles move. Follow the detection
+            pipeline, explore the evidence, and test a video on your own
+            computer.
+          </p>
+          <div class="actions">
+            <a class="btn" href="#demo">Try the local demo ↗</a
+            ><a class="btn secondary" href="#results">Explore sample results</a>
+          </div>
+        </div>
+        <aside class="hero-panel" aria-label="Project overview">
+          <div class="panel-top">
+            <strong>THE PROJECT AT A GLANCE</strong
+            ><span class="tag">RoadLens</span>
+          </div>
+          <div class="hero-item">
+            <span class="hero-index">01</span>
+            <div>
+              <strong>Detect and track</strong>
+              <p>YOLO11n detections and ByteTrack trajectories.</p>
+            </div>
+          </div>
+          <div class="hero-item">
+            <span class="hero-index">02</span>
+            <div>
+              <strong>Apply explicit rules</strong>
+              <p>Camera geometry and motion support event intervals.</p>
+            </div>
+          </div>
+          <div class="hero-item">
+            <span class="hero-index">03</span>
+            <div>
+              <strong>Review the evidence</strong>
+              <p>
+                Annotated video, event timelines, and per-frame risk output.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </section>
+      <div class="project-note">
+        <strong>Evidence before claims.</strong
+        ><span
+          >Unfilled project details and missing sample assets are marked below.
+          No example metrics or predictions are presented as measured
+          results.</span
+        >
+      </div>
+      <section class="chapter" id="team" aria-labelledby="team-title">
+        <div class="section-head">
+          <div>
+            <span class="section-number">01 / Team</span>
+            <h2 id="team-title">The people behind the work.</h2>
+          </div>
+          <p>
+            Who built each part, how the work was divided, and where to find the
+            team.
+          </p>
+        </div>
+        <div class="grid cols-3" id="team-grid"></div>
+        <div class="subhead">
+          <h3>Previous work we’re proud of</h3>
+          <span class="small">Add genuine projects and your contribution.</span>
+        </div>
+        <div id="projects-grid" class="grid cols-2"></div>
+      </section>
+      <section class="chapter" id="approach" aria-labelledby="approach-title">
+        <div class="section-head">
+          <div>
+            <span class="section-number">02 / Problem & approach</span>
+            <h2 id="approach-title">Objects are only the beginning.</h2>
+          </div>
+          <p>
+            Traffic events depend on behavior over time, camera perspective, and
+            road context—not just a bounding box in one frame.
+          </p>
+        </div>
+        <div class="card">
+          <h3>The problem</h3>
+          <p class="muted">
+            Reviewing traffic video manually is slow. The prototype turns
+            footage into candidate event intervals and visual evidence for human
+            review. It separates learned object detection from explicit traffic
+            rules so the source of each prediction can be inspected.
+          </p>
+          <figure style="margin: 24px 0 0" aria-labelledby="pipeline-caption">
+            <div
+              class="pipeline"
+              role="img"
+              aria-label="Video decoding flows into learned YOLO11n detection, ByteTrack tracking, calibrated traffic rules, optional causal risk scoring, and JSON and annotated video export."
+            >
+              <div class="stage">
+                <span class="stage-number">01 →</span>
+                <h3>Decode & sample</h3>
+                <p>
+                  OpenCV reads frames in order. Configurable frame sampling
+                  bounds inference work.
+                </p>
+                <span class="tag">Processing</span>
+              </div>
+              <div class="stage learned">
+                <span class="stage-number">02 →</span>
+                <h3>YOLO11n</h3>
+                <p>
+                  A pretrained detector finds people, bicycles, cars,
+                  motorcycles, buses, and trucks.
+                </p>
+                <span class="tag">Learned</span>
+              </div>
+              <div class="stage">
+                <span class="stage-number">03 ↓</span>
+                <h3>ByteTrack</h3>
+                <p>
+                  Associates detections across frames to estimate object
+                  trajectories.
+                </p>
+                <span class="tag">Association algorithm</span>
+              </div>
+              <div class="stage">
+                <span class="stage-number">04 →</span>
+                <h3>Traffic rules</h3>
+                <p>
+                  Road polygons, lanes, signal regions, and time thresholds
+                  produce event intervals.
+                </p>
+                <span class="tag">Rule-based</span>
+              </div>
+              <div class="stage">
+                <span class="stage-number">05 →</span>
+                <h3>Optional risk</h3>
+                <p>
+                  Past/current motion informs a smoothed closest-approach score.
+                  No future frames.
+                </p>
+                <span class="tag">Heuristic · Part B</span>
+              </div>
+              <div class="stage">
+                <span class="stage-number">06 ↗</span>
+                <h3>Evidence & export</h3>
+                <p>
+                  Validate predictions, render annotations, and export JSON and
+                  MP4.
+                </p>
+                <span class="tag">Deterministic tooling</span>
+              </div>
+            </div>
+            <figcaption id="pipeline-caption" class="muted">
+              Pipeline order: decode → detect → track → apply rules / optional
+              risk → validate and render. The highlighted stage uses learned
+              weights; event decisions remain camera-dependent rules.
+            </figcaption>
+          </figure>
+        </div>
+        <div class="grid cols-2" style="margin-top: 18px">
+          <div class="card">
+            <h3>Models, data, and why</h3>
+            <div class="table-scroll">
+              <table class="model-table">
+                <thead>
+                  <tr>
+                    <th>Component</th>
+                    <th>Choice and rationale</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Object detector</td>
+                    <td>
+                      YOLO11n; a compact pretrained baseline for CPU inference.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Pretraining data</td>
+                    <td>
+                      COCO object categories. These weights do not directly
+                      classify traffic accidents.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Tracking</td>
+                    <td>
+                      ByteTrack; keeps object identities across sampled frames.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Event logic</td>
+                    <td>
+                      Explicit geometry and temporal thresholds; inspectable but
+                      camera-specific.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Risk</td>
+                    <td>
+                      Closest approach in image coordinates; optional and
+                      uncalibrated.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card field-stack">
+            <h3>Project-specific evidence</h3>
+            <div>
+              <span class="field-label"
+                >Sample dataset / source / permission</span
+              >
+              <div id="dataset-note" class="blank"></div>
+            </div>
+            <div>
+              <span class="field-label"
+                >Training or fine-tuning actually performed</span
+              >
+              <div id="training-note" class="blank"></div>
+            </div>
+            <div>
+              <span class="field-label"
+                >Evaluation split and validation protocol</span
+              >
+              <div id="evaluation-note" class="blank"></div>
+            </div>
+            <div>
+              <span class="field-label"
+                >Checkpoint version and inference settings</span
+              >
+              <div id="settings-note" class="blank"></div>
+            </div>
+          </div>
+        </div>
+        <div class="notice">
+          The recovered implementation does not detect accident, near_miss,
+          road_obstacle, or fire_smoke. A valid 14-class interface is not
+          evidence of 14-class detection capability. Nonzero risk scores are not
+          calibrated accident probabilities.
+        </div>
+      </section>
+      <section class="chapter" id="eda" aria-labelledby="eda-title">
+        <div class="section-head">
+          <div>
+            <span class="section-number">03 / Exploratory data analysis</span>
+            <h2 id="eda-title">Know the footage first.</h2>
+          </div>
+          <p>
+            Camera properties, object visibility, motion, and density help
+            explain both successful predictions and failures.
+          </p>
+        </div>
+        <div class="selector">
+          <label for="eda-select">Sample video</label
+          ><select id="eda-select" class="control"></select
+          ><span id="sample-source-note" class="small"></span>
+        </div>
+        <div class="metric-grid">
+          <div class="metric">
+            <span class="field-label">Resolution</span
+            ><strong id="metric-resolution">—</strong
+            ><span class="small">Width × height</span>
+          </div>
+          <div class="metric">
+            <span class="field-label">Frame rate</span
+            ><strong id="metric-fps">—</strong
+            ><span class="small">Frames per second</span>
+          </div>
+          <div class="metric">
+            <span class="field-label">Duration</span
+            ><strong id="metric-duration">—</strong
+            ><span class="small">Seconds</span>
+          </div>
+          <div class="metric">
+            <span class="field-label">Lighting</span
+            ><strong id="metric-lighting" style="font-size: 17px">—</strong
+            ><span class="small">Describe observed conditions</span>
+          </div>
+        </div>
+        <div class="grid cols-2">
+          <div class="card">
+            <div class="chart-title">
+              <h3>Visible objects over time</h3>
+              <span class="tag">Per class</span>
+            </div>
+            <div id="counts-chart" class="chart"></div>
+            <div id="counts-legend" class="legend"></div>
+            <p class="chart-caption">
+              Counts are objects visible in sampled frames, not unique traffic
+              throughput.
+            </p>
+          </div>
+          <div class="card">
+            <div class="chart-title">
+              <h3>Traffic density over time</h3>
+              <span class="tag">Visible vehicles</span>
+            </div>
+            <div id="density-chart" class="chart"></div>
+            <p class="chart-caption">
+              Visible vehicle count is a density proxy, not vehicles per
+              kilometre.
+            </p>
+          </div>
+        </div>
+        <div class="grid cols-2 visual-grid">
+          <figure class="card" style="margin: 0">
+            <h3>Motion heatmap</h3>
+            <div id="heatmap-slot"></div>
+            <figcaption id="heatmap-caption" class="chart-caption"></figcaption>
+          </figure>
+          <figure class="card" style="margin: 0">
+            <h3>Trajectories & lane directions</h3>
+            <div id="trajectory-slot"></div>
+            <figcaption
+              id="trajectory-caption"
+              class="chart-caption"
+            ></figcaption>
+          </figure>
+        </div>
+        <div class="card" style="margin-top: 18px">
+          <span class="field-label">What we learned from this sample</span>
+          <div id="eda-observations" class="blank"></div>
+        </div>
+      </section>
+      <section class="chapter" id="results" aria-labelledby="results-title">
+        <div class="section-head">
+          <div>
+            <span class="section-number">04 / Sample results</span>
+            <h2 id="results-title">Show the result. Show the limits.</h2>
+          </div>
+          <p>
+            Use one entry for every organizer sample, including videos with no
+            detected events.
+          </p>
+        </div>
+        <div class="selector">
+          <label for="result-select">Sample video</label
+          ><select id="result-select" class="control"></select
+          ><span id="result-status" class="status-pill">Assets not added</span>
+        </div>
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Annotated playback</h3>
+            <div id="sample-video-slot"></div>
+            <div id="sample-downloads" class="result-controls"></div>
+            <p id="sample-result-note" class="chart-caption"></p>
+          </div>
+          <div class="card">
+            <h3>Detected event timeline</h3>
+            <div id="sample-timeline" class="chart"></div>
+            <div id="sample-events" class="event-list"></div>
+            <p class="chart-caption">
+              Select an event to seek the annotated video. Intervals are
+              predictions, not verified ground truth.
+            </p>
+          </div>
+        </div>
+        <div class="card" style="margin-top: 18px">
+          <div class="chart-title">
+            <h3>Per-frame risk curve</h3>
+            <span class="tag">Optional Part B</span>
+          </div>
+          <div id="sample-risk" class="chart"></div>
+          <p class="chart-caption">
+            Score range: 0–1. An all-zero curve can mean Part B was disabled; it
+            does not establish that the scene was safe.
+          </p>
+        </div>
+        <div class="subhead"><h3>Examples of classes we detect</h3></div>
+        <div id="class-examples" class="grid cols-3"></div>
+        <div class="subhead">
+          <h3>Failure cases & ambiguous scenes</h3>
+          <span class="small">Use real examples, not generic claims.</span>
+        </div>
+        <div id="failure-cases" class="grid cols-2"></div>
+      </section>
+      <section class="chapter" id="demo" aria-labelledby="demo-title">
+        <div class="section-head">
+          <div>
+            <span class="section-number">05 / Live demo</span>
+            <h2 id="demo-title">Bring your own two minutes.</h2>
+          </div>
+          <p>
+            Choose an MP4, run the local model, and inspect events alongside the
+            annotated video and risk curve.
+          </p>
+        </div>
+        <div class="card">
+          <div class="demo-head">
+            <div>
+              <h3>Analyze on your computer</h3>
+              <p class="demo-limits">
+                MP4 only · Up to <span id="size-limit">2 GiB</span> · Maximum
+                <span id="duration-limit">120</span> seconds
+              </p>
+            </div>
+            <span id="connection" class="status-pill">Checking local app</span>
+          </div>
+          <div id="local-notice" class="demo-notice">
+            The Python app must be running locally. This page does not execute
+            Python inside your browser.
+          </div>
+          <div class="actions" id="local-actions" style="margin-bottom: 20px">
+            <a
+              class="btn secondary"
+              href="http://127.0.0.1:8000/#demo"
+              target="_blank"
+              rel="noopener"
+              >Open local app ↗</a
+            ><span id="local-download-slot"></span>
+          </div>
+          <details style="margin-bottom: 20px">
+            <summary>Install and start the local app</summary>
+            <p>
+              Download and extract the full project. Install Python 3.12 and
+              FFmpeg, then open Terminal in the extracted folder. On macOS,
+              install them with <code>brew install python@3.12 ffmpeg</code>.
+            </p>
+            <pre
+              style="
+                overflow: auto;
+                padding: 16px;
+                background: #f4f6f1;
+                border-radius: 8px;
+              "
+            >
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-local.txt
+python scripts/download_weights.py
+python local.py</pre>
+            <p>
+              The local interface opens in your browser. See the included README
+              for Linux CPU-only PyTorch installation and Windows through WSL2.
+            </p>
+          </details>
+          <div class="demo-settings">
+            <label for="demo-team"
+              >Team name<input
+                id="demo-team"
+                class="control"
+                maxlength="100"
+                placeholder="Your team name"
+                autocomplete="organization" /></label
+            ><label id="profile-label" for="demo-profile" hidden
+              >Camera profile<select id="demo-profile" class="control"></select
+            ></label>
+          </div>
+          <details id="camera-details" hidden style="margin-bottom: 18px">
+            <summary>Camera geometry and optional risk settings</summary>
+            <textarea
+              id="demo-camera"
+              class="control"
+              spellcheck="false"
+              aria-label="Camera configuration JSON"
+            ></textarea>
+            <p class="small">
+              Verify the road geometry for this camera. A profile from another
+              camera can cause false events.
+            </p>
+          </details>
+          <label class="drop disabled" id="drop"
+            ><span class="upload-icon" aria-hidden="true">↑</span
+            ><strong id="filename">Drop your MP4 here, or browse</strong
+            ><small id="filehint">The file is sent only to the local app.</small
+            ><input
+              id="file"
+              type="file"
+              accept=".mp4,video/mp4"
+              aria-label="Choose an MP4 video"
+              disabled
+          /></label>
+          <div class="demo-action">
+            <span id="selection" class="muted"
+              >Start the local app to enable upload.</span
+            ><button class="btn" id="start" disabled>Analyze video ↗</button>
+          </div>
+          <div id="work" hidden>
+            <div class="progress-label">
+              <span id="upload-label">Upload progress</span
+              ><strong id="percentage">0.00%</strong>
+            </div>
+            <progress
+              id="bar"
+              max="100"
+              value="0"
+              aria-label="Upload progress"
+            ></progress>
+            <div class="steps">
+              <span id="pending">Pending</span
+              ><span id="processing">Processing</span
+              ><span id="completed">Completed</span>
+            </div>
+            <div id="status" role="status" aria-live="polite"></div>
+            <div class="actions" id="downloads" hidden>
+              <a id="json" class="btn secondary" download="predictions.json"
+                >Download predictions.json</a
+              ><a id="mp4" class="btn secondary" download="processed_video.mp4"
+                >Download annotated MP4</a
+              >
+            </div>
+            <p id="job"></p>
+          </div>
+          <div id="demo-results" class="demo-results" hidden>
+            <video
+              id="demo-video"
+              class="video"
+              controls
+              preload="metadata"
+              aria-label="Your annotated video"
+            ></video>
+            <div class="grid cols-2">
+              <div class="card">
+                <h3>Event timeline</h3>
+                <div id="demo-timeline" class="chart"></div>
+                <div id="demo-events" class="event-list"></div>
+              </div>
+              <div class="card">
+                <h3>Risk curve</h3>
+                <div id="demo-risk" class="chart"></div>
+              </div>
+            </div>
+            <div id="demo-warning" class="notice" hidden></div>
+          </div>
+          <p class="small" style="margin-top: 20px">
+            Keep the local Python app running during processing. Outputs expire
+            after <span id="retention">24 hours</span>. The integrated Python
+            backend also enforces the 120-second duration limit.
+          </p>
+        </div>
+      </section>
+      <section class="chapter" id="report" aria-labelledby="report-title">
+        <div class="section-head">
+          <div>
+            <span class="section-number">06 / One-page report</span>
+            <h2 id="report-title">What the evidence tells us.</h2>
+          </div>
+          <button type="button" id="print-report" class="print-btn">
+            Print / save report as PDF
+          </button>
+        </div>
+        <div class="card">
+          <p id="report-summary" class="blank"></p>
+          <div class="report-grid">
+            <article class="report-box">
+              <h3>What worked</h3>
+              <div id="report-worked" class="blank"></div>
+            </article>
+            <article class="report-box">
+              <h3>What did not</h3>
+              <div id="report-failed" class="blank"></div>
+            </article>
+            <article class="report-box">
+              <h3>Evaluation & limitations</h3>
+              <div id="report-evaluation" class="blank"></div>
+            </article>
+            <article class="report-box">
+              <h3>What we would do next</h3>
+              <div id="report-next" class="blank"></div>
+            </article>
+          </div>
+          <p class="small">
+            Keep the completed report to about 400–500 words. Tie conclusions to
+            the sample results above.
+          </p>
+        </div>
+      </section>
+      <section class="chapter" id="links" aria-labelledby="links-title">
+        <div class="section-head">
+          <div>
+            <span class="section-number">07 / Links & reproducibility</span>
+            <h2 id="links-title">Everything needed to inspect the work.</h2>
+          </div>
+          <p>
+            Use working public URLs or accessible project assets. Check
+            permissions before submitting.
+          </p>
+        </div>
+        <div class="card" id="resource-links"></div>
+        <details style="margin-top: 22px">
+          <summary>Before you submit: missing-content checklist</summary>
+          <ul id="completion-list" class="completion-list"></ul>
+        </details>
+      </section>
+      <footer class="footer">
+        <span>RoadLens · A traffic-video research prototype.</span
+        ><a href="#main">Back to top ↑</a>
+      </footer>
+    </main>
+    <!-- EDIT CONTENT HERE. Empty strings/arrays are intentional: supply real project information. -->
+    <script id="site-content" type="application/json">
+      {
+        "teamName": "",
+        "members": [
+          {
+            "name": "",
+            "role": "",
+            "contribution": "",
+            "photo": "",
+            "github": "",
+            "linkedin": "",
+            "portfolio": ""
+          },
+          {
+            "name": "",
+            "role": "",
+            "contribution": "",
+            "photo": "",
+            "github": "",
+            "linkedin": "",
+            "portfolio": ""
+          },
+          {
+            "name": "",
+            "role": "",
+            "contribution": "",
+            "photo": "",
+            "github": "",
+            "linkedin": "",
+            "portfolio": ""
+          }
+        ],
+        "projects": [
+          {
+            "name": "",
+            "description": "",
+            "contribution": "",
+            "image": "",
+            "url": ""
+          },
+          {
+            "name": "",
+            "description": "",
+            "contribution": "",
+            "image": "",
+            "url": ""
+          }
+        ],
+        "approach": {
+          "dataset": "",
+          "training": "",
+          "evaluation": "",
+          "settings": ""
+        },
+        "samples": [
+          {
+            "id": "sample-01",
+            "filename": "",
+            "resolution": "",
+            "fps": null,
+            "duration": null,
+            "lighting": "",
+            "observations": "",
+            "annotatedVideo": "",
+            "predictionsUrl": "",
+            "analysisUrl": "",
+            "heatmap": "",
+            "heatmapCaption": "",
+            "trajectories": "",
+            "trajectoryCaption": "",
+            "counts": [],
+            "events": null,
+            "risk": null,
+            "resultNote": ""
+          }
+        ],
+        "classExamples": [
+          {
+            "label": "",
+            "image": "",
+            "video": "",
+            "sample": "",
+            "start": null,
+            "end": null,
+            "explanation": ""
+          }
+        ],
+        "failures": [
+          {
+            "title": "",
+            "image": "",
+            "observation": "",
+            "reason": "",
+            "nextStep": ""
+          },
+          {
+            "title": "",
+            "image": "",
+            "observation": "",
+            "reason": "",
+            "nextStep": ""
+          }
+        ],
+        "report": {
+          "summary": "",
+          "worked": "",
+          "failed": "",
+          "evaluation": "",
+          "next": ""
+        },
+        "links": {
+          "repository": "",
+          "weights": "",
+          "predictionsSamples": "",
+          "report": "",
+          "localApp": ""
+        }
+      }
+    </script>
+    <script>
+      "use strict";
+      const CONTENT = JSON.parse(
+        document.getElementById("site-content").textContent,
+      );
+      const $ = (id) => document.getElementById(id);
+      const COLORS = [
+        "#32714b",
+        "#bd8c43",
+        "#4d82a1",
+        "#a57292",
+        "#738646",
+        "#c16e54",
+      ];
+      const CLASSES = [
+        "accident",
+        "near_miss",
+        "red_light",
+        "wrong_way",
+        "illegal_u_turn",
+        "stopped_vehicle",
+        "jaywalking",
+        "failure_to_yield",
+        "illegal_turn",
+        "solid_line_crossing",
+        "stop_line",
+        "congestion",
+        "road_obstacle",
+        "fire_smoke",
+      ];
+      const OBJECTS = [
+        "person",
+        "bicycle",
+        "car",
+        "motorcycle",
+        "bus",
+        "truck",
+      ];
+      const text = (tag, value, cls) => {
+        const e = document.createElement(tag);
+        if (cls) e.className = cls;
+        e.textContent = value;
+        return e;
+      };
+      function empty(message) {
+        return text("div", message, "empty");
+      }
+      function field(id, value, hint) {
+        $(id).textContent = value || hint;
+        $(id).classList.toggle("blank", !value);
+      }
+      function assetURL(value) {
+        if (typeof value !== "string" || !value.trim()) return null;
+        try {
+          const u = new URL(value, document.baseURI);
+          return ["http:", "https:"].includes(u.protocol) ||
+            (location.protocol === "file:" && u.protocol === "file:")
+            ? u.href
+            : null;
+        } catch {
+          return null;
+        }
+      }
+      function link(label, value, cls = "") {
+        const href = assetURL(value);
+        if (!href) return text("span", label + " — add link", "missing-link");
+        const a = text("a", label, cls);
+        a.href = href;
+        if (new URL(href).origin !== location.origin) {
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+        }
+        return a;
+      }
+      function imageSlot(container, url, hint, cls = "figure-image") {
+        container.replaceChildren();
+        const href = assetURL(url);
+        if (!href) {
+          container.append(empty(hint));
+          return;
+        }
+        const img = document.createElement("img");
+        img.src = href;
+        img.alt = hint;
+        img.className = cls;
+        img.loading = "lazy";
+        img.onerror = () =>
+          container.replaceChildren(
+            empty("Image could not be loaded. Check its path."),
+          );
+        container.append(img);
+      }
+      function renderTeam() {
+        CONTENT.members.forEach((m, i) => {
+          const card = text("article", "", "card member-card");
+          const portrait = document.createElement("div");
+          imageSlot(
+            portrait,
+            m.photo,
+            "Add portrait · member " + (i + 1) + " · 4:3 crop",
+            "portrait",
+          );
+          if (!m.photo) portrait.firstChild.classList.add("portrait");
+          card.append(
+            portrait,
+            text("h3", m.name || "—"),
+            text("p", m.role || "Role: __________________", "member-role"),
+            text("span", "Contribution", "field-label"),
+            text(
+              "div",
+              m.contribution || "Add the specific work this member completed.",
+              m.contribution ? "muted" : "blank",
+            ),
+          );
+          const links = text("div", "", "member-links");
+          for (const [label, key] of [
+            ["GitHub", "github"],
+            ["LinkedIn", "linkedin"],
+            ["Portfolio", "portfolio"],
+          ])
+            links.append(link(label, m[key]));
+          card.append(links);
+          $("team-grid").append(card);
+        });
+        CONTENT.projects.forEach((p) => {
+          const card = text("article", "", "card project-card");
+          const media = document.createElement("div");
+          imageSlot(media, p.image, "Add a previous-project image · 16:9");
+          card.append(
+            media,
+            text("h3", p.name || "Project name: __________________"),
+            text(
+              "p",
+              p.description || "Add a brief description of the project.",
+              "muted",
+            ),
+            text(
+              "div",
+              p.contribution || "Your contribution: __________________",
+              "blank",
+            ),
+            link("View project ↗", p.url),
+          );
+          $("projects-grid").append(card);
+        });
+      }
+      function renderEvidence() {
+        for (const [key, id, hint] of [
+          [
+            "dataset",
+            "dataset-note",
+            "Add sample source, video count, and permission.",
+          ],
+          [
+            "training",
+            "training-note",
+            "State whether you fine-tuned; add data/settings or write “No fine-tuning.”",
+          ],
+          [
+            "evaluation",
+            "evaluation-note",
+            "Add how you evaluated and separated development/evaluation data.",
+          ],
+          [
+            "settings",
+            "settings-note",
+            "Add the actual checkpoint, sample FPS, input size, and hardware.",
+          ],
+        ])
+          field(id, CONTENT.approach[key], hint);
+        CONTENT.classExamples.forEach((e) => {
+          const card = text("article", "", "card");
+          const media = document.createElement("div");
+          imageSlot(
+            media,
+            e.image,
+            "Add evidence frame for a class you actually detect.",
+          );
+          card.append(
+            media,
+            text("h3", e.label || "Class label: __________________"),
+            text(
+              "p",
+              e.explanation || "Describe why this prediction is correct.",
+              "muted",
+            ),
+            text(
+              "p",
+              e.sample
+                ? e.sample +
+                    (Number.isFinite(e.start)
+                      ? " · " + e.start + "–" + e.end + " s"
+                      : "")
+                : "Sample and time interval: __________________",
+              "small",
+            ),
+          );
+          if (e.video) card.append(link("Watch evidence clip ↗", e.video));
+          $("class-examples").append(card);
+        });
+        CONTENT.failures.forEach((f) => {
+          const card = text("article", "", "card failure");
+          const media = document.createElement("div");
+          imageSlot(media, f.image, "Add a failure-case frame or screenshot.");
+          card.append(
+            media,
+            text("h3", f.title || "Failure case: __________________"),
+          );
+          for (const [label, key] of [
+            ["Observed", "observation"],
+            ["Likely cause", "reason"],
+            ["Next step", "nextStep"],
+          ]) {
+            card.append(
+              text("span", label, "field-label"),
+              text(
+                "div",
+                f[key] || "__________________",
+                f[key] ? "muted" : "blank",
+              ),
+            );
+          }
+          $("failure-cases").append(card);
+        });
+        for (const [key, hint] of [
+          [
+            "summary",
+            "Add a 2–3 sentence project summary and principal finding.",
+          ],
+          [
+            "worked",
+            "Add evidence-backed successes and the samples that support them.",
+          ],
+          [
+            "failed",
+            "Add observed errors, missed classes, and difficult conditions.",
+          ],
+          [
+            "evaluation",
+            "Add measured results, sample size, and limits of the evaluation.",
+          ],
+          [
+            "next",
+            "Add the next experiments or improvements, in priority order.",
+          ],
+        ])
+          field("report-" + key, CONTENT.report[key], hint);
+      }
+      function renderLinks() {
+        for (const [key, title, note] of [
+          [
+            "repository",
+            "Source repository",
+            "Complete runnable project and root solution.py",
+          ],
+          [
+            "weights",
+            "Model weights",
+            "Exact checkpoint used, version, and license",
+          ],
+          [
+            "predictionsSamples",
+            "predictions_samples.json",
+            "Predictions for every supplied sample video",
+          ],
+          ["report", "One-page report", "Optional standalone PDF or document"],
+          [
+            "localApp",
+            "Local app download",
+            "Package and setup instructions for the demo",
+          ],
+        ]) {
+          const row = text("div", "", "link-row");
+          const desc = document.createElement("div");
+          desc.append(text("strong", title), text("small", note));
+          const a = link("Open / download ↗", CONTENT.links[key], "link-value");
+          row.append(desc, a);
+          $("resource-links").append(row);
+        }
+        if (CONTENT.links.localApp)
+          $("local-download-slot").append(
+            link("Download local app", CONTENT.links.localApp, "btn secondary"),
+          );
+        const missing = [
+          "Team portraits, names, roles, and contributions",
+          "GitHub, LinkedIn, and portfolio links",
+          "Previous projects and evidence images",
+          "Dataset, training, and evaluation details",
+          "An entry and real EDA data for every sample",
+          "Annotated sample MP4s and predictions",
+          "Class examples and honest failure evidence",
+          "Completed one-page report",
+          "Repository, checkpoint, and predictions_samples.json URLs",
+        ];
+        missing.forEach((s) => $("completion-list").append(text("li", s)));
+      }
+      const svgNS = "http://www.w3.org/2000/svg";
+      function svgEl(tag, attrs = {}, value) {
+        const e = document.createElementNS(svgNS, tag);
+        for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+        if (value !== undefined) e.textContent = value;
+        return e;
+      }
+      function plot(
+        target,
+        series,
+        { maxY = null, label = "Chart", duration = null } = {},
+      ) {
+        const host = $(target);
+        host.replaceChildren();
+        const usable = series
+          .map((s) => ({
+            ...s,
+            points: s.points
+              .filter(
+                (p) =>
+                  Array.isArray(p) &&
+                  p.length >= 2 &&
+                  Number.isFinite(p[0]) &&
+                  p[0] >= 0 &&
+                  Number.isFinite(p[1]) &&
+                  p[1] >= 0,
+              )
+              .sort((a, b) => a[0] - b[0]),
+          }))
+          .filter((s) => s.points.length);
+        if (!usable.length) {
+          host.append(empty("No measured data added yet."));
+          return;
+        }
+        const w = 620,
+          h = 205,
+          left = 42,
+          right = 12,
+          top = 14,
+          bottom = 34;
+        let xMax = duration || 0,
+          yMax = maxY || 0;
+        for (const s of usable)
+          for (const [x, y] of s.points) {
+            xMax = Math.max(xMax, x);
+            if (maxY === null) yMax = Math.max(yMax, y);
+          }
+        xMax = Math.max(xMax, 1);
+        yMax = Math.max(yMax, 1);
+        const x = (v) => left + (v / xMax) * (w - left - right),
+          y = (v) =>
+            h - bottom - (Math.min(v, yMax) / yMax) * (h - top - bottom);
+        const svg = svgEl("svg", {
+          viewBox: `0 0 ${w} ${h}`,
+          role: "img",
+          "aria-label": label,
+        });
+        for (let i = 0; i <= 4; i++) {
+          const value = (i * yMax) / 4,
+            yy = y(value);
+          svg.append(
+            svgEl("line", {
+              x1: left,
+              x2: w - right,
+              y1: yy,
+              y2: yy,
+              class: "chart-grid",
+            }),
+            svgEl(
+              "text",
+              {
+                x: left - 8,
+                y: yy + 4,
+                "text-anchor": "end",
+                class: "axis-label",
+              },
+              Number(value.toFixed(2)),
+            ),
+          );
+        }
+        for (let i = 0; i <= 4; i++) {
+          const t = (xMax * i) / 4;
+          svg.append(
+            svgEl(
+              "text",
+              {
+                x: x(t),
+                y: h - 10,
+                "text-anchor": "middle",
+                class: "axis-label",
+              },
+              Number(t.toFixed(1)) + "s",
+            ),
+          );
+        }
+        for (const s of usable) {
+          const step = Math.max(1, Math.ceil(s.points.length / 1000));
+          const points = s.points.filter(
+            (_, i) => i % step === 0 || i === s.points.length - 1,
+          );
+          svg.append(
+            svgEl("polyline", {
+              points: points.map((p) => `${x(p[0])},${y(p[1])}`).join(" "),
+              fill: "none",
+              stroke: s.color || COLORS[0],
+              "stroke-width": 2,
+              "stroke-linejoin": "round",
+            }),
+          );
+          if (points.length === 1)
+            svg.append(
+              svgEl("circle", {
+                cx: x(points[0][0]),
+                cy: y(points[0][1]),
+                r: 3,
+                fill: s.color || COLORS[0],
+              }),
+            );
+        }
+        host.append(svg);
+      }
+      function riskPlot(target, risk, duration) {
+        if (!Array.isArray(risk)) {
+          $(target).replaceChildren(
+            empty(
+              "Risk data not supplied. Add the per-frame curve if Part B was run.",
+            ),
+          );
+          return;
+        }
+        if (
+          risk.some(
+            (p) =>
+              !Array.isArray(p) ||
+              p.length !== 2 ||
+              !Number.isFinite(p[0]) ||
+              !Number.isFinite(p[1]) ||
+              p[0] < 0 ||
+              p[1] < 0 ||
+              p[1] > 1,
+          )
+        ) {
+          $(target).replaceChildren(
+            empty(
+              "Invalid risk data: timestamps must be nonnegative; scores must be finite in [0, 1].",
+            ),
+          );
+          return;
+        }
+        plot(target, [{ points: risk, color: COLORS[0] }], {
+          maxY: 1,
+          duration,
+          label: "Risk score from 0 to 1 over time",
+        });
+      }
+      function timeline(target, listId, events, duration, videoId) {
+        $(target).replaceChildren();
+        $(listId).replaceChildren();
+        if (!Array.isArray(events)) {
+          $(target).append(empty("Event predictions have not been added."));
+          return;
+        }
+        const valid = events.filter(
+          (e) =>
+            Array.isArray(e) &&
+            e.length === 3 &&
+            Number.isFinite(e[0]) &&
+            Number.isFinite(e[1]) &&
+            e[0] >= 0 &&
+            e[1] > e[0] &&
+            CLASSES.includes(e[2]),
+        );
+        if (valid.length !== events.length) {
+          $(target).append(
+            empty(
+              "Invalid event intervals or labels. Validate predictions before displaying them.",
+            ),
+          );
+          return;
+        }
+        if (!valid.length) {
+          $(target).append(
+            empty(
+              "No events were returned for this video. Check calibration and detector coverage.",
+            ),
+          );
+          return;
+        }
+        const labels = [...new Set(valid.map((e) => e[2]))];
+        let end = duration || 1;
+        for (const e of valid) end = Math.max(end, e[1]);
+        const width = 650,
+          left = 155,
+          right = 12,
+          row = 29,
+          height = labels.length * row + 38;
+        const svg = svgEl("svg", {
+          viewBox: `0 0 ${width} ${height}`,
+          role: "img",
+          "aria-label": "Event intervals grouped by class",
+        });
+        labels.forEach((label, i) => {
+          const y = i * row + 10;
+          svg.append(
+            svgEl(
+              "text",
+              {
+                x: left - 10,
+                y: y + 12,
+                "text-anchor": "end",
+                class: "axis-label",
+              },
+              label,
+            ),
+            svgEl("line", {
+              x1: left,
+              x2: width - right,
+              y1: y + 7,
+              y2: y + 7,
+              class: "chart-grid",
+            }),
+          );
+          for (const e of valid.filter((e) => e[2] === label)) {
+            const rect = svgEl("rect", {
+              x: left + (e[0] / end) * (width - left - right),
+              y,
+              width: Math.max(
+                2,
+                ((e[1] - e[0]) / end) * (width - left - right),
+              ),
+              height: 14,
+              rx: 3,
+              fill: COLORS[i % COLORS.length],
+            });
+            rect.append(
+              svgEl("title", {}, `${label}: ${e[0]}–${e[1]} seconds`),
+            );
+            svg.append(rect);
+          }
+        });
+        for (let i = 0; i <= 4; i++)
+          svg.append(
+            svgEl(
+              "text",
+              {
+                x: left + ((width - left - right) * i) / 4,
+                y: height - 5,
+                "text-anchor": "middle",
+                class: "axis-label",
+              },
+              Number(((end * i) / 4).toFixed(1)) + "s",
+            ),
+          );
+        $(target).append(svg);
+        for (const e of [...valid].sort((a, b) => a[0] - b[0]).slice(0, 100)) {
+          const b = text(
+            "button",
+            `${e[0].toFixed(2)}–${e[1].toFixed(2)} s · ${e[2]}`,
+            "event-button",
+          );
+          b.type = "button";
+          b.addEventListener("click", () => {
+            const v = $(videoId);
+            if (v && v.getAttribute("src")) {
+              v.currentTime = e[0];
+              v.focus();
+            }
+          });
+          $(listId).append(b);
+        }
+        if (valid.length > 100)
+          $(listId).append(
+            text(
+              "p",
+              "Showing the first 100 intervals; download JSON for all events.",
+              "small",
+            ),
+          );
+      }
+      let sampleGeneration = 0;
+      const sampleCache = new Map();
+      async function getJSON(url, options = {}) {
+        const response = await fetch(url, {
+          signal: AbortSignal.timeout(20000),
+          ...options,
+        });
+        if (!response.ok) {
+          let info = {};
+          try {
+            info = await response.json();
+          } catch {}
+          const error = new Error(
+            typeof info.detail === "string"
+              ? info.detail
+              : "Request failed (" + response.status + ")",
+          );
+          error.status = response.status;
+          throw error;
+        }
+        if (Number(response.headers.get("content-length")) > 32 * 1024 ** 2)
+          throw new Error(
+            "JSON is too large for the browser preview. Download it instead.",
+          );
+        return response.json();
+      }
+      function setSampleVisuals(s) {
+        $("metric-resolution").textContent = s.resolution || "—";
+        $("metric-fps").textContent =
+          Number.isFinite(s.fps) && s.fps > 0 ? s.fps : "—";
+        $("metric-duration").textContent =
+          Number.isFinite(s.duration) && s.duration > 0
+            ? s.duration.toFixed(1)
+            : "—";
+        $("metric-lighting").textContent = s.lighting || "—";
+        field(
+          "eda-observations",
+          s.observations,
+          "Add the findings you observed in this sample.",
+        );
+        imageSlot(
+          $("heatmap-slot"),
+          s.heatmap,
+          "Add a motion heatmap generated from this sample.",
+        );
+        imageSlot(
+          $("trajectory-slot"),
+          s.trajectories,
+          "Add vehicle trajectories with calibrated lane-direction arrows.",
+        );
+        $("heatmap-caption").textContent =
+          s.heatmapCaption ||
+          "Add the method, time range, and what the colors mean.";
+        $("trajectory-caption").textContent =
+          s.trajectoryCaption ||
+          "Add the tracked classes, time range, and direction convention.";
+        const rows = Array.isArray(s.counts)
+          ? s.counts.filter((r) => r && typeof r === "object")
+          : [];
+        plot(
+          "counts-chart",
+          OBJECTS.map((name, i) => ({
+            points: rows
+              .filter((r) => Number.isFinite(r[name]))
+              .map((r) => [r.time, r[name]]),
+            color: COLORS[i],
+          })),
+          {
+            duration: s.duration,
+            label: "Visible object counts per class over time",
+          },
+        );
+        $("counts-legend").replaceChildren();
+        if (rows.length)
+          OBJECTS.forEach((name, i) => {
+            const item = text("span", name);
+            const swatch = text("i", "", "swatch");
+            swatch.style.background = COLORS[i];
+            item.prepend(swatch);
+            $("counts-legend").append(item);
+          });
+        const density = rows
+          .filter((r) => OBJECTS.slice(1).every((k) => Number.isFinite(r[k])))
+          .map((r) => [
+            r.time,
+            OBJECTS.slice(1).reduce((sum, key) => sum + r[key], 0),
+          ]);
+        plot("density-chart", [{ points: density, color: COLORS[0] }], {
+          duration: s.duration,
+          label: "Visible vehicle count over time",
+        });
+        timeline(
+          "sample-timeline",
+          "sample-events",
+          s.events,
+          s.duration,
+          "sample-video",
+        );
+        riskPlot("sample-risk", s.risk, s.duration);
+      }
+      async function chooseSample(index) {
+        const generation = ++sampleGeneration;
+        const original = CONTENT.samples[index];
+        if (!original) return;
+        $("eda-select").value = String(index);
+        $("result-select").value = String(index);
+        let s = { ...original };
+        setSampleVisuals(s);
+        $("sample-source-note").textContent =
+          s.filename || "Add the original sample filename.";
+        $("sample-result-note").textContent =
+          s.resultNote || "Add a short interpretation of these results.";
+        $("sample-downloads").replaceChildren();
+        const videoURL = assetURL(s.annotatedVideo);
+        if (videoURL) {
+          const v = document.createElement("video");
+          v.id = "sample-video";
+          v.className = "video";
+          v.controls = true;
+          v.preload = "metadata";
+          v.src = videoURL;
+          v.setAttribute("aria-label", "Annotated sample video");
+          v.addEventListener("error", () => {
+            $("result-status").textContent = "Video could not be loaded";
+          });
+          $("sample-video-slot").replaceChildren(v);
+          $("sample-downloads").append(
+            link("Annotated MP4 ↗", s.annotatedVideo),
+          );
+        } else
+          $("sample-video-slot").replaceChildren(
+            empty("Add the annotated version of this sample video."),
+          );
+        if (s.predictionsUrl)
+          $("sample-downloads").append(
+            link("Prediction JSON ↗", s.predictionsUrl),
+          );
+        $("result-status").textContent = videoURL
+          ? "Video added · checking predictions"
+          : "Sample assets not complete";
+        try {
+          for (const key of ["analysisUrl", "predictionsUrl"]) {
+            const url = assetURL(s[key]);
+            if (!url) continue;
+            if (!sampleCache.has(url))
+              sampleCache.set(
+                url,
+                getJSON(url).catch((e) => {
+                  sampleCache.delete(url);
+                  throw e;
+                }),
+              );
+            const data = await sampleCache.get(url);
+            if (generation !== sampleGeneration) return;
+            if (key === "analysisUrl") {
+              s.counts = data.counts || s.counts;
+              if (data.meta) {
+                s.duration = data.meta.duration ?? s.duration;
+                s.fps = data.meta.fps ?? s.fps;
+                if (data.meta.width && data.meta.height)
+                  s.resolution = data.meta.width + " × " + data.meta.height;
+              }
+              if (!s.predictionsUrl) {
+                s.events = data.events ?? s.events;
+                s.risk = data.risk ?? s.risk;
+              }
+            } else {
+              const prediction = data.videos ? data.videos[s.filename] : data;
+              if (
+                !prediction ||
+                !Array.isArray(prediction.events) ||
+                !Array.isArray(prediction.risk)
+              )
+                throw new Error(
+                  "Prediction JSON must include the exact sample filename, events, and risk.",
+                );
+              s.events = prediction.events;
+              s.risk = prediction.risk;
+            }
+          }
+          if (generation !== sampleGeneration) return;
+          setSampleVisuals(s);
+          $("result-status").textContent =
+            videoURL && Array.isArray(s.events) && Array.isArray(s.risk)
+              ? "Assets loaded · predictions unverified"
+              : "Add remaining sample assets";
+        } catch (error) {
+          if (generation !== sampleGeneration) return;
+          $("result-status").textContent = "Data not loaded";
+          $("sample-result-note").textContent = error.message;
+        }
+      }
+      function renderSamples() {
+        if (!CONTENT.samples.length) {
+          CONTENT.samples.push({
+            filename: "",
+            counts: [],
+            events: null,
+            risk: null,
+          });
+        }
+        CONTENT.samples.forEach((s, i) => {
+          for (const id of ["eda-select", "result-select"]) {
+            const option = text(
+              "option",
+              s.filename || "Sample " + (i + 1) + " — add filename",
+            );
+            option.value = String(i);
+            $(id).append(option);
+          }
+        });
+        for (const id of ["eda-select", "result-select"])
+          $(id).addEventListener("change", (event) =>
+            chooseSample(Number(event.target.value)),
+          );
+        chooseSample(0);
+      }
+      // Local upload API. Relative API calls are enabled only on a loopback origin.
+      let selected = null,
+        busy = false,
+        connected = false,
+        currentJob = null,
+        selectedDuration = 0,
+        selectionGeneration = 0;
+      let limits = {
+        max_upload_bytes: 2147483648,
+        chunk_bytes: 10485760,
+        max_duration_seconds: 120,
+        retention_seconds: 86400,
+      };
+      const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      const storageKey = "roadlens-showcase-job-v1";
+      function remember(v) {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(v));
+        } catch {}
+      }
+      function recall() {
+        try {
+          return JSON.parse(localStorage.getItem(storageKey));
+        } catch {
+          return null;
+        }
+      }
+      function forget() {
+        try {
+          localStorage.removeItem(storageKey);
+        } catch {}
+      }
+      function message(value, error = false) {
+        $("status").textContent = value;
+        $("status").className = error ? "error" : "";
+      }
+      function percent(bytes, total) {
+        const n =
+          total > 0 ? Math.max(0, Math.min(100, (bytes / total) * 100)) : 0;
+        $("bar").value = n;
+        $("percentage").textContent = n.toFixed(2) + "%";
+      }
+      function setBusy(value) {
+        busy = value;
+        $("file").disabled = value || !connected;
+        $("drop").classList.toggle("disabled", value || !connected);
+        $("start").disabled = value || !selected || !connected;
+        for (const id of ["demo-team", "demo-profile", "demo-camera"])
+          $(id).disabled = value;
+      }
+      function step(state) {
+        for (const id of ["pending", "processing", "completed"])
+          $(id).className = id === state ? "active" : "";
+        if (state === "completed")
+          for (const id of ["pending", "processing", "completed"])
+            $(id).classList.add("done");
+      }
+      function showJob(id) {
+        currentJob = id;
+        $("job").textContent = "Job " + id;
+        $("work").hidden = false;
+      }
+      function videoDuration(file) {
+        return new Promise((resolve, reject) => {
+          const video = document.createElement("video"),
+            url = URL.createObjectURL(file);
+          const cleanup = () => {
+            clearTimeout(timer);
+            video.onloadedmetadata = null;
+            video.onerror = null;
+            video.removeAttribute("src");
+            video.load();
+            URL.revokeObjectURL(url);
+          };
+          const timer = setTimeout(() => {
+            cleanup();
+            reject(new Error("Cannot read video duration. Try an H.264 MP4."));
+          }, 15000);
+          video.preload = "metadata";
+          video.onloadedmetadata = () => {
+            const duration = video.duration;
+            cleanup();
+            Number.isFinite(duration) && duration > 0
+              ? resolve(duration)
+              : reject(new Error("Video duration is invalid."));
+          };
+          video.onerror = () => {
+            cleanup();
+            reject(
+              new Error(
+                "This browser cannot read the MP4. Try an H.264 export.",
+              ),
+            );
+          };
+          video.src = url;
+        });
+      }
+      async function choose(file) {
+        if (busy || !connected || !file) return;
+        const generation = ++selectionGeneration;
+        selected = null;
+        $("start").disabled = true;
+        $("work").hidden = false;
+        $("downloads").hidden = true;
+        $("demo-results").hidden = true;
+        if (
+          !/\.mp4$/i.test(file.name) ||
+          file.size <= 0 ||
+          file.size > limits.max_upload_bytes
+        ) {
+          message(
+            "Choose a non-empty MP4 no larger than " +
+              (limits.max_upload_bytes / 1024 ** 3).toFixed(2) +
+              " GiB.",
+            true,
+          );
+          return;
+        }
+        message("Checking the video duration…");
+        try {
+          const duration = await videoDuration(file);
+          if (generation !== selectionGeneration) return;
+          if (duration > limits.max_duration_seconds + 0.05)
+            throw new Error(
+              "This demo accepts at most " +
+                limits.max_duration_seconds +
+                " seconds. Trim the video first.",
+            );
+          selected = file;
+          selectedDuration = duration;
+          $("filename").textContent = file.name;
+          $("filehint").textContent =
+            (file.size / 1024 ** 2).toFixed(1) +
+            " MiB · " +
+            duration.toFixed(1) +
+            " seconds";
+          $("selection").textContent = "Ready for local analysis";
+          message("Ready. Set the team name and verify camera settings.");
+          setBusy(false);
+        } catch (error) {
+          if (generation === selectionGeneration) message(error.message, true);
+        }
+      }
+      async function api(url, options = {}) {
+        return getJSON(url, { credentials: "same-origin", ...options });
+      }
+      function sendChunk(file, id, offset, end) {
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open(
+            "POST",
+            "/api/upload?job_id=" +
+              encodeURIComponent(id) +
+              "&offset=" +
+              offset,
+          );
+          xhr.setRequestHeader("Content-Type", "application/octet-stream");
+          xhr.timeout = 240000;
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) percent(offset + e.loaded, file.size);
+          };
+          xhr.onload = () => {
+            let data;
+            try {
+              data = JSON.parse(xhr.responseText);
+            } catch {
+              data = { detail: "Unexpected upload response" };
+            }
+            if (xhr.status >= 200 && xhr.status < 300) resolve(data);
+            else {
+              const error = new Error(
+                typeof data.detail === "string"
+                  ? data.detail
+                  : "Upload rejected",
+              );
+              error.status = xhr.status;
+              reject(error);
+            }
+          };
+          xhr.onerror = () => reject(new Error("Connection interrupted"));
+          xhr.ontimeout = () => reject(new Error("Upload chunk timed out"));
+          xhr.send(file.slice(offset, end));
+        });
+      }
+      async function uploadFile(file, id, start) {
+        let offset = start,
+          failures = 0;
+        while (offset < file.size) {
+          percent(offset, file.size);
+          message("Transferring video to the local app…");
+          try {
+            const result = await sendChunk(
+              file,
+              id,
+              offset,
+              Math.min(offset + limits.chunk_bytes, file.size),
+            );
+            if (
+              !Number.isSafeInteger(result.received) ||
+              result.received <= offset ||
+              result.received > file.size
+            )
+              throw new Error("Invalid server upload offset");
+            offset = result.received;
+            failures = 0;
+          } catch (error) {
+            if (error.status && error.status < 500 && error.status !== 409)
+              throw error;
+            if (++failures > 5)
+              throw new Error(
+                "Transfer interrupted. Reselect the original file and retry to resume.",
+              );
+            message("Checking saved bytes before retry " + failures + " of 5…");
+            await sleep(Math.min(1000 * 2 ** failures, 10000));
+            try {
+              const saved = await api("/api/status/" + id);
+              if (saved.status === "failed")
+                throw Object.assign(new Error(saved.error || "Upload failed"), {
+                  terminal: true,
+                });
+              if (saved.phase !== "uploading") return;
+              offset = saved.received;
+            } catch (check) {
+              if (
+                check.terminal ||
+                check.status === 404 ||
+                check.status === 401
+              )
+                throw check;
+            }
+          }
+        }
+        percent(file.size, file.size);
+      }
+      async function showDemoResult(id, originalName, duration) {
+        $("downloads").hidden = false;
+        $("json").href = "/api/download/" + id + "/json";
+        $("mp4").href = "/api/download/" + id + "/mp4";
+        const output = await api("/api/download/" + id + "/json");
+        if (!output.videos || typeof output.videos !== "object")
+          throw new Error(
+            "The API returned demo metadata, not event predictions. Install the integrated RoadLens processor; downloads remain available.",
+          );
+        const keys = Object.keys(output.videos),
+          name =
+            originalName && output.videos[originalName]
+              ? originalName
+              : keys.length === 1
+                ? keys[0]
+                : null;
+        if (!name)
+          throw new Error("Could not match this video to its predictions.");
+        const result = output.videos[name];
+        if (!Array.isArray(result.events) || !Array.isArray(result.risk))
+          throw new Error("The result is missing events or risk.");
+        $("demo-results").hidden = false;
+        $("demo-video").src = "/api/download/" + id + "/mp4";
+        timeline(
+          "demo-timeline",
+          "demo-events",
+          result.events,
+          duration,
+          "demo-video",
+        );
+        riskPlot("demo-risk", result.risk, duration);
+        $("demo-warning").hidden = false;
+        $("demo-warning").textContent =
+          "These are model predictions. Review calibration and unsupported classes. Risk scores are heuristic; zeros can indicate disabled Part B.";
+        try {
+          const summary = await api("/api/result/" + id);
+          if (Array.isArray(summary.warnings))
+            $("demo-warning").textContent = summary.warnings.join(" ");
+        } catch {}
+      }
+      async function poll(id, name, duration) {
+        let failures = 0;
+        while (true) {
+          try {
+            const state = await api("/api/status/" + id);
+            failures = 0;
+            step(state.status);
+            if (state.phase === "uploading") {
+              percent(state.received, state.size);
+              message("Upload paused. Reselect the original file to resume.");
+              $("start").textContent = "Resume upload ↗";
+              return;
+            }
+            percent(1, 1);
+            $("upload-label").textContent = "Upload complete";
+            if (state.status === "completed") {
+              message("Completed. Loading events and video…");
+              await showDemoResult(id, name, duration).catch((error) =>
+                message(error.message, true),
+              );
+              if (!$("status").classList.contains("error"))
+                message(
+                  "Completed. Review the timeline, annotated video, and risk curve.",
+                );
+              $("start").textContent = "Analyze another video ↗";
+              forget();
+              return;
+            }
+            if (state.status === "failed") {
+              forget();
+              throw Object.assign(
+                new Error(state.error || "Processing failed"),
+                { terminal: true },
+              );
+            }
+            const progress = Number.isFinite(state.progress)
+              ? state.progress
+              : 0;
+            message(
+              state.status === "processing"
+                ? (state.processing_stage === "rendering"
+                    ? "Rendering annotated video"
+                    : "Analyzing video") +
+                    " — " +
+                    progress +
+                    "% of this stage. Keep the local app running."
+                : "Pending — waiting for the local processor.",
+            );
+          } catch (error) {
+            if (error.terminal || error.status === 401 || error.status === 404)
+              throw error;
+            if (++failures > 15)
+              throw new Error(
+                "Cannot reach the local app. Restart it and reload this page.",
+              );
+            message("Connection lost. Reconnecting to the saved job…");
+          }
+          await sleep(2000);
+        }
+      }
+      $("file").addEventListener("change", (e) => choose(e.target.files[0]));
+      for (const type of ["dragenter", "dragover"])
+        $("drop").addEventListener(type, (e) => {
+          e.preventDefault();
+          if (connected && !busy) $("drop").classList.add("drag");
+        });
+      for (const type of ["dragleave", "drop"])
+        $("drop").addEventListener(type, (e) => {
+          e.preventDefault();
+          $("drop").classList.remove("drag");
+        });
+      $("drop").addEventListener("drop", (e) =>
+        choose(e.dataTransfer.files[0]),
+      );
+      window.addEventListener("dragover", (e) => e.preventDefault());
+      window.addEventListener("drop", (e) => e.preventDefault());
+      $("start").addEventListener("click", async () => {
+        if (!selected || busy || !connected) return;
+        setBusy(true);
+        $("downloads").hidden = true;
+        $("demo-results").hidden = true;
+        $("upload-label").textContent = "Upload progress";
+        step("pending");
+        try {
+          const team = $("demo-team").value.trim();
+          if (!team) throw new Error("Enter your team name.");
+          let camera;
+          if (!$("camera-details").hidden) {
+            try {
+              camera = JSON.parse($("demo-camera").value);
+            } catch {
+              throw new Error("Camera configuration must be valid JSON.");
+            }
+          }
+          const settings = JSON.stringify({ team, camera }),
+            saved = recall();
+          let id,
+            offset = 0;
+          if (
+            saved &&
+            saved.name === selected.name &&
+            saved.size === selected.size &&
+            saved.lastModified === selected.lastModified &&
+            saved.settings === settings
+          ) {
+            try {
+              const state = await api("/api/status/" + saved.id);
+              if (state.phase === "uploading") {
+                id = saved.id;
+                offset = state.received;
+              } else if (state.status !== "failed") {
+                showJob(saved.id);
+                await poll(saved.id, selected.name, selectedDuration);
+                return;
+              }
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+          }
+          if (!id) {
+            const result = await api("/api/uploads", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                filename: selected.name,
+                size: selected.size,
+                team,
+                camera,
+              }),
+            });
+            id = result.job_id;
+          }
+          remember({
+            id,
+            name: selected.name,
+            size: selected.size,
+            lastModified: selected.lastModified,
+            duration: selectedDuration,
+            settings,
+          });
+          showJob(id);
+          await uploadFile(selected, id, offset);
+          await poll(id, selected.name, selectedDuration);
+        } catch (error) {
+          message(error.message, true);
+          $("start").textContent = "Retry analysis ↗";
+        } finally {
+          setBusy(false);
+        }
+      });
+      async function connectLocal() {
+        const loopback = ["localhost", "127.0.0.1", "[::1]", "::1"].includes(
+          location.hostname,
+        );
+        $("demo-team").value = CONTENT.teamName || "";
+        if (!loopback || !["http:", "https:"].includes(location.protocol)) {
+          $("connection").textContent = "Local app required";
+          $("local-notice").textContent =
+            "To analyze a video on your computer, start the Python app and open its local interface. This public/standalone page does not send videos to a cloud processor.";
+          setBusy(false);
+          return;
+        }
+        try {
+          const config = await api("/api/config");
+          limits = {
+            ...limits,
+            ...config,
+            max_upload_bytes: Math.min(
+              limits.max_upload_bytes,
+              config.max_upload_bytes || limits.max_upload_bytes,
+            ),
+            max_duration_seconds: Math.min(
+              120,
+              config.max_duration_seconds || 120,
+            ),
+          };
+          connected = true;
+          $("connection").textContent = "Local API connected";
+          $("local-notice").textContent =
+            "The local API is connected. Your video is processed on this computer. Verify the selected camera profile before analysis.";
+          $("selection").textContent = "Choose an MP4 to get started.";
+          $("duration-limit").textContent = limits.max_duration_seconds;
+          $("size-limit").textContent =
+            (limits.max_upload_bytes / 1024 ** 3)
+              .toFixed(2)
+              .replace(/\.00$/, "") + " GiB";
+          $("retention").textContent =
+            (limits.retention_seconds / 3600).toFixed(1).replace(/\.0$/, "") +
+            " hours";
+          if (Array.isArray(config.profiles) && config.profiles.length) {
+            $("profile-label").hidden = false;
+            $("camera-details").hidden = false;
+            config.profiles.forEach((p) => {
+              const option = text("option", p.config.name || p.name);
+              option.value = p.name;
+              $("demo-profile").append(option);
+            });
+            const loadProfile = () => {
+              $("demo-camera").value = JSON.stringify(
+                config.profiles.find((p) => p.name === $("demo-profile").value)
+                  .config,
+                null,
+                2,
+              );
+            };
+            $("demo-profile").addEventListener("change", loadProfile);
+            loadProfile();
+          }
+          if (config.weights_ready === false) {
+            $("local-notice").textContent =
+              "The local API is running, but model weights are missing. Run python scripts/download_weights.py, then reload.";
+          }
+          const saved = recall();
+          if (saved && /^[a-f0-9-]{36}$/.test(saved.id)) {
+            if (saved.settings) {
+              try {
+                const previous = JSON.parse(saved.settings);
+                $("demo-team").value = previous.team;
+                if (previous.camera)
+                  $("demo-camera").value = JSON.stringify(
+                    previous.camera,
+                    null,
+                    2,
+                  );
+              } catch {}
+            }
+            showJob(saved.id);
+            setBusy(true);
+            await poll(saved.id, saved.name, saved.duration);
+          }
+        } catch (error) {
+          if (!connected) {
+            $("connection").textContent = "Local API unavailable";
+            $("local-notice").textContent =
+              "Start the integrated Python app with python local.py, then reload. A static file server alone cannot run analysis.";
+          } else {
+            $("work").hidden = false;
+            message(error.message, true);
+            if (error.status === 404) forget();
+          }
+        } finally {
+          setBusy(false);
+        }
+      }
+      $("print-report").addEventListener("click", () => window.print());
+      renderTeam();
+      renderEvidence();
+      renderLinks();
+      renderSamples();
+      connectLocal();
+    </script>
+  </body>
 </html>
