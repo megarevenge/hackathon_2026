@@ -22,7 +22,7 @@ from src.config import load_config, validate_config
 MAX_BYTES = 200_000_000  # 200 MB; enforced for metadata and streamed uploads.
 MAX_SECONDS = 600
 PROFILES = {'camera.json': 'C3896 daytime framing · reviewed geometry v2',
-            'uncalibrated.json': 'Other camera · configure before detecting events'}
+            'uncalibrated.json': 'Nighttime framing · configure before detecting events'}
 
 
 class Jobs:
@@ -175,8 +175,10 @@ class CreateJob(API):
             payload = json.loads(self.request.body)
             name = Path(payload['name']).name
             size = payload['size']
+            if type(size) is int and size > MAX_BYTES:
+                raise tornado.web.HTTPError(413, reason='This file exceeds the 200 MB upload limit.')
             if not name.lower().endswith('.mp4') or type(size) is not int or not 0<size<=MAX_BYTES:
-                raise ValueError('Choose an MP4 file up to 50 MB.')
+                raise ValueError('Choose an MP4 file up to 200 MB.')
             config = validate_config(payload['config'])
             config['device'] = 'cpu'
         except (ValueError,KeyError,TypeError,AttributeError,OverflowError) as exc:
@@ -207,7 +209,7 @@ class Upload(API):
             length = 0
         if length != job['size'] or length>MAX_BYTES:
             self.jobs.remove(token)
-            raise tornado.web.HTTPError(413,reason='Upload size does not match the selected file or exceeds 50 MB.')
+            raise tornado.web.HTTPError(413,reason='Upload size does not match the selected file or exceeds 200 MB.')
         self.token = token
         self.expected = length
         self.destination = (Path(job['temp'].name)/'input.mp4').open('wb')

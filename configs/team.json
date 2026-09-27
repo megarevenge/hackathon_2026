@@ -1,1 +1,32 @@
-{"members": []}
+{
+  "name": "JAM",
+  "members": [
+    {
+      "name": "Jaxongir Saidjanov",
+      "role": "Backend Engineer",
+      "contribution": "Website logic",
+      "photo": "https://disk.yandex.uz/i/h_cv5oY0ru5Uhw",
+      "github": "https://github.com/megarevenge",
+      "linkedin": "https://www.linkedin.com/in/jaxongir-saidjanov-91156a2b5/",
+      "portfolio": ""
+    },
+    {
+      "name": "Muhammad Egamov",
+      "role": "Video Algorithm Specialist",
+      "contribution": "Video analysis algorithm",
+      "photo": "https://disk.yandex.uz/i/Z0zifS8BTOYHcw",
+      "github": "https://github.com/CosmosByME",
+      "linkedin": "https://www.linkedin.com/in/muhammad-egamov",
+      "portfolio": ""
+    },
+    {
+      "name": "Abdurrahmon Jurayev",
+      "role": "Frontend Engineer",
+      "contribution": "UX/UI design",
+      "photo": "https://disk.yandex.uz/i/UJkSJLwryQ_knQ",
+      "github": "https://github.com/abdurrahmonjurayev",
+      "linkedin": "https://www.linkedin.com/in/abdurrahmon-jurayev-9948b53ba/",
+      "portfolio": ""
+    }
+  ]
+}

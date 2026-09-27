@@ -36,8 +36,8 @@ When bundled weights are present and valid, no model download is required.
 
 ## Limits and operation
 
-- Maximum file size: exactly 50,000,000 bytes (50 MB), enforced in the browser,
-  job creation, and streamed upload. Some operating systems show this as 47.7 MiB.
+- Maximum file size: exactly 200,000,000 bytes (200 MB), enforced in the browser,
+  job creation, and streamed upload. Some operating systems show this as 190.7 MiB.
 - Existing limits retained: MP4 only, 10 minutes maximum, up to 4K resolution.
 - One analysis at a time across all visitors. Keep one service replica because
   jobs and their temporary files belong to one running process.
@@ -60,7 +60,7 @@ Open http://localhost:8080. Health endpoint: `/health`.
 ## Validation
 
 The web/API checks cover upload, status polling, result download, video byte ranges,
-size rejection, and the exact 50 MB boundary. Model preparation was checked with bundled files and a simulated missing-folder
+size rejection, and the exact 200 MB boundary. Model preparation was checked with bundled files and a simulated missing-folder
 download, including checksum rejection. Docker image build and real model
 inference have not been verified in the preparation environment.
 
@@ -68,3 +68,17 @@ Railway references:
 - https://docs.railway.com/builds/dockerfiles
 - https://docs.railway.com/deployments/healthchecks
 - https://docs.railway.com/networking/public-networking
+
+## Team and upload popup
+
+JAM members and profile links are in `configs/team.json`. Each `photo` field is
+empty. To add a photo, put it in `website/public/photos/` and set the field to
+`/photos/your-file.jpg`. Empty fields display blank photo placeholders.
+
+Oversized file selections and HTTP 413 responses open a dialog linking to
+https://github.com/CosmosByME/traffic-event-cv for local installation. The external
+repository may have its own limits; local processing is not guaranteed unlimited.
+
+The second camera profile is labeled Nighttime framing. Its configuration remains
+uncalibrated, so event rules stay disabled until geometry is configured. No new
+night-trained model or geometry is introduced.
