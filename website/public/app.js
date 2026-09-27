@@ -9,8 +9,9 @@ async function api(path,options={}){const response=await fetch(path,options);if(
 function progress(value,text){$('progress-area').hidden=false;$('progress').value=value;$('progress-number').textContent=`${Math.round(value)}%`;$('progress-text').textContent=text;}
 function busy(value){state.busy=value;$('analyze').disabled=value||!state.file||!state.info?.weights_ready;$('video-file').disabled=value;$('profile').disabled=value;$('config').disabled=value;$('render').disabled=value;$('analyze').textContent=value?'Analysis in progress…':'Analyze footage ↗';}
 function setVideo(url){$('video').src=url;$('video').hidden=false;$('video-empty').hidden=true;$('codec-note').hidden=true;}
+function uploadLimitBytes(){return Number(state.info?.max_bytes)||200000000;}
 function showUploadLimit(){
-  const limit=Number(state.info?.max_bytes||200000000)/1000000;
+  const limit=uploadLimitBytes()/1000000;
   $('upload-limit-description').textContent=`This video exceeds the ${limit} MB hosted upload limit. Choose a smaller file or run the project locally.`;
   const dialog=$('upload-limit-dialog');
   if(!dialog.open)dialog.showModal();
@@ -24,7 +25,7 @@ function rejectFile(message,oversize=false){
   fail(message);
   if(oversize)showUploadLimit();
 }
-function choose(file){if(!file||state.busy)return;$('error').hidden=true;if(!file.name.toLowerCase().endsWith('.mp4'))return rejectFile('Please choose an MP4 video.');if(!state.info)return fail('The analysis server is not connected.');if(file.size>state.info.max_bytes)return rejectFile(`This file exceeds the ${state.info.max_bytes/1000000} MB upload limit.`,true);if(file.size===0)return rejectFile('The selected file is empty.');state.file=file;state.result=null;state.job=null;$('results').hidden=true;$('progress-area').hidden=true;if(state.url)URL.revokeObjectURL(state.url);state.url=URL.createObjectURL(file);setVideo(state.url);$('file-name').textContent=file.name;$('file-detail').textContent=`${(file.size/1000000).toFixed(1)} MB · ready to analyze`;$('video-caption').textContent=file.name;for(const id of ['duration','events','time','speed'])$('metric-'+id).textContent='—';busy(false);}
+function choose(file){if(!file||state.busy)return;$('error').hidden=true;if(file.size>uploadLimitBytes())return rejectFile(`This file exceeds the ${uploadLimitBytes()/1000000} MB upload limit.`,true);if(!file.name.toLowerCase().endsWith('.mp4'))return rejectFile('Please choose an MP4 video.');if(!state.info)return fail('The analysis server is not connected.');if(file.size===0)return rejectFile('The selected file is empty.');state.file=file;state.result=null;state.job=null;$('results').hidden=true;$('progress-area').hidden=true;if(state.url)URL.revokeObjectURL(state.url);state.url=URL.createObjectURL(file);setVideo(state.url);$('file-name').textContent=file.name;$('file-detail').textContent=`${(file.size/1000000).toFixed(1)} MB · ready to analyze`;$('video-caption').textContent=file.name;for(const id of ['duration','events','time','speed'])$('metric-'+id).textContent='—';busy(false);}
 $('video-file').addEventListener('change',e=>choose(e.target.files[0]));
 $('dropzone').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('video-file').click();}});
 for(const type of ['dragenter','dragover'])$('dropzone').addEventListener(type,e=>{e.preventDefault();$('dropzone').classList.add('dragover');});

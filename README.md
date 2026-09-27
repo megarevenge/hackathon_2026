@@ -71,8 +71,8 @@ Railway references:
 
 ## Team and upload popup
 
-JAM members and profile links are in `configs/team.json`. Each `photo` field is
-empty. To add a photo, put it in `website/public/photos/` and set the field to
+JAM members and profile links are in `configs/team.json`. Each `photo` field points to a bundled image in `website/public/photos/`.
+The original Yandex Disk sharing link is retained as `photo_source`. To add a photo, put it in `website/public/photos/` and set the field to
 `/photos/your-file.jpg`. Empty fields display blank photo placeholders.
 
 Oversized file selections and HTTP 413 responses open a dialog linking to
@@ -82,3 +82,7 @@ repository may have its own limits; local processing is not guaranteed unlimited
 The second camera profile is labeled Nighttime framing. Its configuration remains
 uncalibrated, so event rules stay disabled until geometry is configured. No new
 night-trained model or geometry is introduced.
+
+The upload popup opens immediately for files over 200 MB, including while the
+server connection is loading. Team photos are bundled, so visitors do not need
+to access Yandex Disk.
