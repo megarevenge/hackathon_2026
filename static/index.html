@@ -1480,155 +1480,100 @@
         <div class="section-head">
           <div>
             <span class="section-number">05 / Live demo</span>
-            <h2 id="demo-title">Bring your own two minutes.</h2>
+            <h2 id="demo-title">Open your local workspace.</h2>
           </div>
           <p>
-            Choose an MP4, run the local model, and inspect events alongside the
-            annotated video and risk curve.
+            Upload your video in the RoadLens demo, run the model on your
+            computer, and review its events, annotated playback, and risk curve.
           </p>
         </div>
         <div class="card">
           <div class="demo-head">
             <div>
-              <h3>Analyze on your computer</h3>
+              <h3>Your computer. Your video.</h3>
               <p class="demo-limits">
-                MP4 only · Up to <span id="size-limit">2 GiB</span> · Maximum
-                <span id="duration-limit">120</span> seconds
+                The Python model runs locally through your website/server.py.
               </p>
             </div>
-            <span id="connection" class="status-pill">Checking local app</span>
+            <span class="status-pill">Local processing</span>
           </div>
-          <div id="local-notice" class="demo-notice">
-            The Python app must be running locally. This page does not execute
-            Python inside your browser.
-          </div>
-          <div class="actions" id="local-actions" style="margin-bottom: 20px">
-            <a
-              class="btn secondary"
-              href="http://127.0.0.1:8000/#demo"
-              target="_blank"
-              rel="noopener"
-              >Open local app ↗</a
-            ><span id="local-download-slot"></span>
-          </div>
-          <details style="margin-bottom: 20px">
-            <summary>Install and start the local app</summary>
-            <p>
-              Download and extract the full project. Install Python 3.12 and
-              FFmpeg, then open Terminal in the extracted folder. On macOS,
-              install them with <code>brew install python@3.12 ffmpeg</code>.
-            </p>
-            <pre
-              style="
-                overflow: auto;
-                padding: 16px;
-                background: #f4f6f1;
-                border-radius: 8px;
-              "
-            >
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements-local.txt
-python scripts/download_weights.py
-python local.py</pre>
-            <p>
-              The local interface opens in your browser. See the included README
-              for Linux CPU-only PyTorch installation and Windows through WSL2.
-            </p>
-          </details>
-          <div class="demo-settings">
-            <label for="demo-team"
-              >Team name<input
-                id="demo-team"
-                class="control"
-                maxlength="100"
-                placeholder="Your team name"
-                autocomplete="organization" /></label
-            ><label id="profile-label" for="demo-profile" hidden
-              >Camera profile<select id="demo-profile" class="control"></select
-            ></label>
-          </div>
-          <details id="camera-details" hidden style="margin-bottom: 18px">
-            <summary>Camera geometry and optional risk settings</summary>
-            <textarea
-              id="demo-camera"
-              class="control"
-              spellcheck="false"
-              aria-label="Camera configuration JSON"
-            ></textarea>
-            <p class="small">
-              Verify the road geometry for this camera. A profile from another
-              camera can cause false events.
-            </p>
-          </details>
-          <label class="drop disabled" id="drop"
-            ><span class="upload-icon" aria-hidden="true">↑</span
-            ><strong id="filename">Drop your MP4 here, or browse</strong
-            ><small id="filehint">The file is sent only to the local app.</small
-            ><input
-              id="file"
-              type="file"
-              accept=".mp4,video/mp4"
-              aria-label="Choose an MP4 video"
-              disabled
-          /></label>
-          <div class="demo-action">
-            <span id="selection" class="muted"
-              >Start the local app to enable upload.</span
-            ><button class="btn" id="start" disabled>Analyze video ↗</button>
-          </div>
-          <div id="work" hidden>
-            <div class="progress-label">
-              <span id="upload-label">Upload progress</span
-              ><strong id="percentage">0.00%</strong>
-            </div>
-            <progress
-              id="bar"
-              max="100"
-              value="0"
-              aria-label="Upload progress"
-            ></progress>
-            <div class="steps">
-              <span id="pending">Pending</span
-              ><span id="processing">Processing</span
-              ><span id="completed">Completed</span>
-            </div>
-            <div id="status" role="status" aria-live="polite"></div>
-            <div class="actions" id="downloads" hidden>
-              <a id="json" class="btn secondary" download="predictions.json"
-                >Download predictions.json</a
-              ><a id="mp4" class="btn secondary" download="processed_video.mp4"
-                >Download annotated MP4</a
-              >
-            </div>
-            <p id="job"></p>
-          </div>
-          <div id="demo-results" class="demo-results" hidden>
-            <video
-              id="demo-video"
-              class="video"
-              controls
-              preload="metadata"
-              aria-label="Your annotated video"
-            ></video>
-            <div class="grid cols-2">
-              <div class="card">
-                <h3>Event timeline</h3>
-                <div id="demo-timeline" class="chart"></div>
-                <div id="demo-events" class="event-list"></div>
-              </div>
-              <div class="card">
-                <h3>Risk curve</h3>
-                <div id="demo-risk" class="chart"></div>
-              </div>
-            </div>
-            <div id="demo-warning" class="notice" hidden></div>
-          </div>
-          <p class="small" style="margin-top: 20px">
-            Keep the local Python app running during processing. Outputs expire
-            after <span id="retention">24 hours</span>. The integrated Python
-            backend also enforces the 120-second duration limit.
+          <p class="demo-notice">
+            Start the local server first, then open the demo below. This button
+            opens your separate video-analysis website in a new tab. It does not
+            start Python automatically.
           </p>
+          <div class="actions" style="margin-bottom: 24px">
+            <a
+              id="open-local-demo"
+              class="btn"
+              href="http://127.0.0.1:8080/#workspace"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Open local video demo ↗</a
+            >
+            <span id="local-download-slot"></span>
+          </div>
+          <div class="grid cols-3">
+            <div class="stage">
+              <span class="stage-number">01</span>
+              <h3>Start the server</h3>
+              <p>
+                Open Terminal in your existing RoadLens model project. With its
+                Python environment and dependencies installed, run:
+              </p>
+              <pre
+                style="
+                  overflow: auto;
+                  font-size: 12px;
+                  line-height: 1.7;
+                  margin-bottom: 0;
+                "
+              ><code>source .venv/bin/activate
+python website/server.py --host 127.0.0.1 --port 8080</code></pre>
+            </div>
+            <div class="stage">
+              <span class="stage-number">02</span>
+              <h3>Open the demo</h3>
+              <p>
+                Click the green button. The local workspace opens at
+                <a
+                  href="http://127.0.0.1:8080/#workspace"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >127.0.0.1:8080</a
+                >. Keep Terminal running.
+              </p>
+            </div>
+            <div class="stage">
+              <span class="stage-number">03</span>
+              <h3>Upload & analyze</h3>
+              <p>
+                Choose your MP4 and camera settings in the local workspace, then
+                select Analyze footage. Progress, event results, and downloads
+                appear there.
+              </p>
+            </div>
+          </div>
+          <details style="margin-top: 20px">
+            <summary>If the local demo does not open</summary>
+            <p>
+              Check that Terminal shows
+              <code>RoadLens HTML website: http://127.0.0.1:8080</code>. The
+              public website and the Python server are separate: every visitor
+              must start the server on their own computer. A browser link cannot
+              execute a local Python file.
+            </p>
+            <p>
+              Place the attached <code>server(1).py</code> at
+              <code>website/server.py</code>. Place <code>index(1).html</code>,
+              renamed to <code>index.html</code>, alongside
+              <code>app.js</code> and <code>styles.css</code> in
+              <code>website/public/</code>. Use your matching model project with
+              its <code>src/</code>, <code>configs/</code>, and
+              <code>weights/</code> folders; these four website files alone do
+              not contain the model.
+            </p>
+          </details>
         </div>
       </section>
       <section class="chapter" id="report" aria-labelledby="report-title">
@@ -2601,530 +2546,11 @@ python local.py</pre>
           );
         chooseSample(0);
       }
-      // Local upload API. Relative API calls are enabled only on a loopback origin.
-      let selected = null,
-        busy = false,
-        connected = false,
-        currentJob = null,
-        selectedDuration = 0,
-        selectionGeneration = 0;
-      let limits = {
-        max_upload_bytes: 2147483648,
-        chunk_bytes: 10485760,
-        max_duration_seconds: 120,
-        retention_seconds: 86400,
-      };
-      const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-      const storageKey = "roadlens-showcase-job-v1";
-      function remember(v) {
-        try {
-          localStorage.setItem(storageKey, JSON.stringify(v));
-        } catch {}
-      }
-      function recall() {
-        try {
-          return JSON.parse(localStorage.getItem(storageKey));
-        } catch {
-          return null;
-        }
-      }
-      function forget() {
-        try {
-          localStorage.removeItem(storageKey);
-        } catch {}
-      }
-      function message(value, error = false) {
-        $("status").textContent = value;
-        $("status").className = error ? "error" : "";
-      }
-      function percent(bytes, total) {
-        const n =
-          total > 0 ? Math.max(0, Math.min(100, (bytes / total) * 100)) : 0;
-        $("bar").value = n;
-        $("percentage").textContent = n.toFixed(2) + "%";
-      }
-      function setBusy(value) {
-        busy = value;
-        $("file").disabled = value || !connected;
-        $("drop").classList.toggle("disabled", value || !connected);
-        $("start").disabled = value || !selected || !connected;
-        for (const id of ["demo-team", "demo-profile", "demo-camera"])
-          $(id).disabled = value;
-      }
-      function step(state) {
-        for (const id of ["pending", "processing", "completed"])
-          $(id).className = id === state ? "active" : "";
-        if (state === "completed")
-          for (const id of ["pending", "processing", "completed"])
-            $(id).classList.add("done");
-      }
-      function showJob(id) {
-        currentJob = id;
-        $("job").textContent = "Job " + id;
-        $("work").hidden = false;
-      }
-      function videoDuration(file) {
-        return new Promise((resolve, reject) => {
-          const video = document.createElement("video"),
-            url = URL.createObjectURL(file);
-          const cleanup = () => {
-            clearTimeout(timer);
-            video.onloadedmetadata = null;
-            video.onerror = null;
-            video.removeAttribute("src");
-            video.load();
-            URL.revokeObjectURL(url);
-          };
-          const timer = setTimeout(() => {
-            cleanup();
-            reject(new Error("Cannot read video duration. Try an H.264 MP4."));
-          }, 15000);
-          video.preload = "metadata";
-          video.onloadedmetadata = () => {
-            const duration = video.duration;
-            cleanup();
-            Number.isFinite(duration) && duration > 0
-              ? resolve(duration)
-              : reject(new Error("Video duration is invalid."));
-          };
-          video.onerror = () => {
-            cleanup();
-            reject(
-              new Error(
-                "This browser cannot read the MP4. Try an H.264 export.",
-              ),
-            );
-          };
-          video.src = url;
-        });
-      }
-      async function choose(file) {
-        if (busy || !connected || !file) return;
-        const generation = ++selectionGeneration;
-        selected = null;
-        $("start").disabled = true;
-        $("work").hidden = false;
-        $("downloads").hidden = true;
-        $("demo-results").hidden = true;
-        if (
-          !/\.mp4$/i.test(file.name) ||
-          file.size <= 0 ||
-          file.size > limits.max_upload_bytes
-        ) {
-          message(
-            "Choose a non-empty MP4 no larger than " +
-              (limits.max_upload_bytes / 1024 ** 3).toFixed(2) +
-              " GiB.",
-            true,
-          );
-          return;
-        }
-        message("Checking the video duration…");
-        try {
-          const duration = await videoDuration(file);
-          if (generation !== selectionGeneration) return;
-          if (duration > limits.max_duration_seconds + 0.05)
-            throw new Error(
-              "This demo accepts at most " +
-                limits.max_duration_seconds +
-                " seconds. Trim the video first.",
-            );
-          selected = file;
-          selectedDuration = duration;
-          $("filename").textContent = file.name;
-          $("filehint").textContent =
-            (file.size / 1024 ** 2).toFixed(1) +
-            " MiB · " +
-            duration.toFixed(1) +
-            " seconds";
-          $("selection").textContent = "Ready for local analysis";
-          message("Ready. Set the team name and verify camera settings.");
-          setBusy(false);
-        } catch (error) {
-          if (generation === selectionGeneration) message(error.message, true);
-        }
-      }
-      async function api(url, options = {}) {
-        return getJSON(url, { credentials: "same-origin", ...options });
-      }
-      function sendChunk(file, id, offset, end) {
-        return new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open(
-            "POST",
-            "/api/upload?job_id=" +
-              encodeURIComponent(id) +
-              "&offset=" +
-              offset,
-          );
-          xhr.setRequestHeader("Content-Type", "application/octet-stream");
-          xhr.timeout = 240000;
-          xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) percent(offset + e.loaded, file.size);
-          };
-          xhr.onload = () => {
-            let data;
-            try {
-              data = JSON.parse(xhr.responseText);
-            } catch {
-              data = { detail: "Unexpected upload response" };
-            }
-            if (xhr.status >= 200 && xhr.status < 300) resolve(data);
-            else {
-              const error = new Error(
-                typeof data.detail === "string"
-                  ? data.detail
-                  : "Upload rejected",
-              );
-              error.status = xhr.status;
-              reject(error);
-            }
-          };
-          xhr.onerror = () => reject(new Error("Connection interrupted"));
-          xhr.ontimeout = () => reject(new Error("Upload chunk timed out"));
-          xhr.send(file.slice(offset, end));
-        });
-      }
-      async function uploadFile(file, id, start) {
-        let offset = start,
-          failures = 0;
-        while (offset < file.size) {
-          percent(offset, file.size);
-          message("Transferring video to the local app…");
-          try {
-            const result = await sendChunk(
-              file,
-              id,
-              offset,
-              Math.min(offset + limits.chunk_bytes, file.size),
-            );
-            if (
-              !Number.isSafeInteger(result.received) ||
-              result.received <= offset ||
-              result.received > file.size
-            )
-              throw new Error("Invalid server upload offset");
-            offset = result.received;
-            failures = 0;
-          } catch (error) {
-            if (error.status && error.status < 500 && error.status !== 409)
-              throw error;
-            if (++failures > 5)
-              throw new Error(
-                "Transfer interrupted. Reselect the original file and retry to resume.",
-              );
-            message("Checking saved bytes before retry " + failures + " of 5…");
-            await sleep(Math.min(1000 * 2 ** failures, 10000));
-            try {
-              const saved = await api("/api/status/" + id);
-              if (saved.status === "failed")
-                throw Object.assign(new Error(saved.error || "Upload failed"), {
-                  terminal: true,
-                });
-              if (saved.phase !== "uploading") return;
-              offset = saved.received;
-            } catch (check) {
-              if (
-                check.terminal ||
-                check.status === 404 ||
-                check.status === 401
-              )
-                throw check;
-            }
-          }
-        }
-        percent(file.size, file.size);
-      }
-      async function showDemoResult(id, originalName, duration) {
-        $("downloads").hidden = false;
-        $("json").href = "/api/download/" + id + "/json";
-        $("mp4").href = "/api/download/" + id + "/mp4";
-        const output = await api("/api/download/" + id + "/json");
-        if (!output.videos || typeof output.videos !== "object")
-          throw new Error(
-            "The API returned demo metadata, not event predictions. Install the integrated RoadLens processor; downloads remain available.",
-          );
-        const keys = Object.keys(output.videos),
-          name =
-            originalName && output.videos[originalName]
-              ? originalName
-              : keys.length === 1
-                ? keys[0]
-                : null;
-        if (!name)
-          throw new Error("Could not match this video to its predictions.");
-        const result = output.videos[name];
-        if (!Array.isArray(result.events) || !Array.isArray(result.risk))
-          throw new Error("The result is missing events or risk.");
-        $("demo-results").hidden = false;
-        $("demo-video").src = "/api/download/" + id + "/mp4";
-        timeline(
-          "demo-timeline",
-          "demo-events",
-          result.events,
-          duration,
-          "demo-video",
-        );
-        riskPlot("demo-risk", result.risk, duration);
-        $("demo-warning").hidden = false;
-        $("demo-warning").textContent =
-          "These are model predictions. Review calibration and unsupported classes. Risk scores are heuristic; zeros can indicate disabled Part B.";
-        try {
-          const summary = await api("/api/result/" + id);
-          if (Array.isArray(summary.warnings))
-            $("demo-warning").textContent = summary.warnings.join(" ");
-        } catch {}
-      }
-      async function poll(id, name, duration) {
-        let failures = 0;
-        while (true) {
-          try {
-            const state = await api("/api/status/" + id);
-            failures = 0;
-            step(state.status);
-            if (state.phase === "uploading") {
-              percent(state.received, state.size);
-              message("Upload paused. Reselect the original file to resume.");
-              $("start").textContent = "Resume upload ↗";
-              return;
-            }
-            percent(1, 1);
-            $("upload-label").textContent = "Upload complete";
-            if (state.status === "completed") {
-              message("Completed. Loading events and video…");
-              await showDemoResult(id, name, duration).catch((error) =>
-                message(error.message, true),
-              );
-              if (!$("status").classList.contains("error"))
-                message(
-                  "Completed. Review the timeline, annotated video, and risk curve.",
-                );
-              $("start").textContent = "Analyze another video ↗";
-              forget();
-              return;
-            }
-            if (state.status === "failed") {
-              forget();
-              throw Object.assign(
-                new Error(state.error || "Processing failed"),
-                { terminal: true },
-              );
-            }
-            const progress = Number.isFinite(state.progress)
-              ? state.progress
-              : 0;
-            message(
-              state.status === "processing"
-                ? (state.processing_stage === "rendering"
-                    ? "Rendering annotated video"
-                    : "Analyzing video") +
-                    " — " +
-                    progress +
-                    "% of this stage. Keep the local app running."
-                : "Pending — waiting for the local processor.",
-            );
-          } catch (error) {
-            if (error.terminal || error.status === 401 || error.status === 404)
-              throw error;
-            if (++failures > 15)
-              throw new Error(
-                "Cannot reach the local app. Restart it and reload this page.",
-              );
-            message("Connection lost. Reconnecting to the saved job…");
-          }
-          await sleep(2000);
-        }
-      }
-      $("file").addEventListener("change", (e) => choose(e.target.files[0]));
-      for (const type of ["dragenter", "dragover"])
-        $("drop").addEventListener(type, (e) => {
-          e.preventDefault();
-          if (connected && !busy) $("drop").classList.add("drag");
-        });
-      for (const type of ["dragleave", "drop"])
-        $("drop").addEventListener(type, (e) => {
-          e.preventDefault();
-          $("drop").classList.remove("drag");
-        });
-      $("drop").addEventListener("drop", (e) =>
-        choose(e.dataTransfer.files[0]),
-      );
-      window.addEventListener("dragover", (e) => e.preventDefault());
-      window.addEventListener("drop", (e) => e.preventDefault());
-      $("start").addEventListener("click", async () => {
-        if (!selected || busy || !connected) return;
-        setBusy(true);
-        $("downloads").hidden = true;
-        $("demo-results").hidden = true;
-        $("upload-label").textContent = "Upload progress";
-        step("pending");
-        try {
-          const team = $("demo-team").value.trim();
-          if (!team) throw new Error("Enter your team name.");
-          let camera;
-          if (!$("camera-details").hidden) {
-            try {
-              camera = JSON.parse($("demo-camera").value);
-            } catch {
-              throw new Error("Camera configuration must be valid JSON.");
-            }
-          }
-          const settings = JSON.stringify({ team, camera }),
-            saved = recall();
-          let id,
-            offset = 0;
-          if (
-            saved &&
-            saved.name === selected.name &&
-            saved.size === selected.size &&
-            saved.lastModified === selected.lastModified &&
-            saved.settings === settings
-          ) {
-            try {
-              const state = await api("/api/status/" + saved.id);
-              if (state.phase === "uploading") {
-                id = saved.id;
-                offset = state.received;
-              } else if (state.status !== "failed") {
-                showJob(saved.id);
-                await poll(saved.id, selected.name, selectedDuration);
-                return;
-              }
-            } catch (error) {
-              if (error.status !== 404) throw error;
-            }
-          }
-          if (!id) {
-            const result = await api("/api/uploads", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                filename: selected.name,
-                size: selected.size,
-                team,
-                camera,
-              }),
-            });
-            id = result.job_id;
-          }
-          remember({
-            id,
-            name: selected.name,
-            size: selected.size,
-            lastModified: selected.lastModified,
-            duration: selectedDuration,
-            settings,
-          });
-          showJob(id);
-          await uploadFile(selected, id, offset);
-          await poll(id, selected.name, selectedDuration);
-        } catch (error) {
-          message(error.message, true);
-          $("start").textContent = "Retry analysis ↗";
-        } finally {
-          setBusy(false);
-        }
-      });
-      async function connectLocal() {
-        const loopback = ["localhost", "127.0.0.1", "[::1]", "::1"].includes(
-          location.hostname,
-        );
-        $("demo-team").value = CONTENT.teamName || "";
-        if (!loopback || !["http:", "https:"].includes(location.protocol)) {
-          $("connection").textContent = "Local app required";
-          $("local-notice").textContent =
-            "To analyze a video on your computer, start the Python app and open its local interface. This public/standalone page does not send videos to a cloud processor.";
-          setBusy(false);
-          return;
-        }
-        try {
-          const config = await api("/api/config");
-          limits = {
-            ...limits,
-            ...config,
-            max_upload_bytes: Math.min(
-              limits.max_upload_bytes,
-              config.max_upload_bytes || limits.max_upload_bytes,
-            ),
-            max_duration_seconds: Math.min(
-              120,
-              config.max_duration_seconds || 120,
-            ),
-          };
-          connected = true;
-          $("connection").textContent = "Local API connected";
-          $("local-notice").textContent =
-            "The local API is connected. Your video is processed on this computer. Verify the selected camera profile before analysis.";
-          $("selection").textContent = "Choose an MP4 to get started.";
-          $("duration-limit").textContent = limits.max_duration_seconds;
-          $("size-limit").textContent =
-            (limits.max_upload_bytes / 1024 ** 3)
-              .toFixed(2)
-              .replace(/\.00$/, "") + " GiB";
-          $("retention").textContent =
-            (limits.retention_seconds / 3600).toFixed(1).replace(/\.0$/, "") +
-            " hours";
-          if (Array.isArray(config.profiles) && config.profiles.length) {
-            $("profile-label").hidden = false;
-            $("camera-details").hidden = false;
-            config.profiles.forEach((p) => {
-              const option = text("option", p.config.name || p.name);
-              option.value = p.name;
-              $("demo-profile").append(option);
-            });
-            const loadProfile = () => {
-              $("demo-camera").value = JSON.stringify(
-                config.profiles.find((p) => p.name === $("demo-profile").value)
-                  .config,
-                null,
-                2,
-              );
-            };
-            $("demo-profile").addEventListener("change", loadProfile);
-            loadProfile();
-          }
-          if (config.weights_ready === false) {
-            $("local-notice").textContent =
-              "The local API is running, but model weights are missing. Run python scripts/download_weights.py, then reload.";
-          }
-          const saved = recall();
-          if (saved && /^[a-f0-9-]{36}$/.test(saved.id)) {
-            if (saved.settings) {
-              try {
-                const previous = JSON.parse(saved.settings);
-                $("demo-team").value = previous.team;
-                if (previous.camera)
-                  $("demo-camera").value = JSON.stringify(
-                    previous.camera,
-                    null,
-                    2,
-                  );
-              } catch {}
-            }
-            showJob(saved.id);
-            setBusy(true);
-            await poll(saved.id, saved.name, saved.duration);
-          }
-        } catch (error) {
-          if (!connected) {
-            $("connection").textContent = "Local API unavailable";
-            $("local-notice").textContent =
-              "Start the integrated Python app with python local.py, then reload. A static file server alone cannot run analysis.";
-          } else {
-            $("work").hidden = false;
-            message(error.message, true);
-            if (error.status === 404) forget();
-          }
-        } finally {
-          setBusy(false);
-        }
-      }
       $("print-report").addEventListener("click", () => window.print());
       renderTeam();
       renderEvidence();
       renderLinks();
       renderSamples();
-      connectLocal();
     </script>
   </body>
 </html>
