@@ -7,7 +7,40 @@ const el = (tag,text,className) => {const node=document.createElement(tag); if(t
 function fail(message){$('error').textContent=message;$('error').hidden=false;}
 async function api(path,options={}){const response=await fetch(path,options);if(!response.ok){let detail;try{detail=await response.json();}catch{}if(response.status===413)showUploadLimit();throw new Error(detail?.error||`Request failed (${response.status})`);}return response.status===204?null:response.json();}
 function progress(value,text){$('progress-area').hidden=false;$('progress').value=value;$('progress-number').textContent=`${Math.round(value)}%`;$('progress-text').textContent=text;}
-function busy(value){state.busy=value;$('analyze').disabled=value||!state.file||!state.info?.weights_ready;$('video-file').disabled=value;$('profile').disabled=value;$('config').disabled=value;$('render').disabled=value;$('analyze').textContent=value?'Analysis in progress…':'Analyze footage ↗';}
+function selectedProfile(){return state.info?.profiles?.find(p=>p.id===$('profile').value);}
+function busy(value){state.busy=value;const ready=!!selectedProfile()?.config;$('analyze').disabled=value||!state.file||!state.info?.weights_ready||!ready;$('video-file').disabled=value;$('profile').disabled=value||!state.info?.profiles?.some(p=>p.config);$('config').disabled=value||!ready;$('render').disabled=value;$('analyze').textContent=value?'Analysis in progress…':'Analyze footage ↗';}
+function setupProfiles(profiles){
+  const available=Array.isArray(profiles)?profiles:[];
+  const modes=[
+    {id:'daytime',label:'Daytime framing',sources:['daytime.json','camera.json']},
+    {id:'nighttime',label:'Nighttime framing',sources:['nighttime.json','uncalibrated.json']}
+  ];
+  state.info.profiles=modes.map(mode=>{
+    const source=mode.sources.map(id=>available.find(p=>p.id===id)).find(Boolean);
+    const config=source?.config;
+    return {id:mode.id,label:mode.label,config:config&&typeof config==='object'&&!Array.isArray(config)?config:null};
+  });
+  $('profile').replaceChildren(...state.info.profiles.map(p=>{
+    const option=el('option',p.label);option.value=p.id;option.disabled=!p.config;return option;
+  }));
+  const initial=state.info.profiles.find(p=>p.config);
+  $('profile').value=initial?.id||'daytime';
+  applyProfile();
+}
+function applyProfile(){
+  const profile=selectedProfile();
+  if(!profile?.config){
+    $('config').value='';
+    $('profile-note').textContent='The server has not provided a configuration for this framing.';
+    busy(state.busy);return;
+  }
+  $('config').value=JSON.stringify(profile.config,null,2);
+  const framing=profile.id==='daytime'?'Daytime':'Nighttime';
+  $('profile-note').textContent=profile.config.calibrated
+    ?`${framing} framing selected. Use this geometry only for its matching camera view.`
+    :`${framing} framing selected. Object tracking is available; configure the camera geometry to enable event rules.`;
+  busy(state.busy);
+}
 function setVideo(url){$('video').src=url;$('video').hidden=false;$('video-empty').hidden=true;$('codec-note').hidden=true;}
 function uploadLimitBytes(){return Number(state.info?.max_bytes)||200000000;}
 function showUploadLimit(){
@@ -31,7 +64,7 @@ $('dropzone').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.
 for(const type of ['dragenter','dragover'])$('dropzone').addEventListener(type,e=>{e.preventDefault();$('dropzone').classList.add('dragover');});
 for(const type of ['dragleave','drop'])$('dropzone').addEventListener(type,e=>{e.preventDefault();$('dropzone').classList.remove('dragover');if(type==='drop')choose(e.dataTransfer.files[0]);});
 $('video').addEventListener('error',()=>{$('codec-note').hidden=false;});
-$('profile').addEventListener('change',()=>{const p=state.info.profiles.find(x=>x.id===$('profile').value);$('config').value=JSON.stringify(p.config,null,2);$('profile-note').textContent=p.config.calibrated?'visually reviewed geometry. Use only for this camera/view; signal and prohibited-turn rules remain unconfigured. Accuracy is not yet validated.':'Nighttime framing is uncalibrated: object tracking is available, but event rules require camera geometry. This profile does not add a night-trained model.';});
+$('profile').addEventListener('change',applyProfile);
 $('save-config').addEventListener('click',()=>{try{const data=JSON.parse($('config').value);const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download='camera.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch{fail('The camera configuration is not valid JSON.');}});
 function uploadFile(id,file){return new Promise((resolve,reject)=>{const xhr=new XMLHttpRequest();xhr.open('PUT',`/api/jobs/${id}/video`);xhr.setRequestHeader('Content-Type','video/mp4');xhr.upload.onprogress=e=>{if(e.lengthComputable)progress(100*e.loaded/e.total,'Uploading to analysis server');};xhr.onload=()=>{if(xhr.status>=200&&xhr.status<300)resolve();else{if(xhr.status===413)showUploadLimit();let message='Upload failed.';try{message=JSON.parse(xhr.responseText).error||message;}catch{}reject(new Error(message));}};xhr.onerror=()=>reject(new Error('Connection lost during upload. Please try again.'));xhr.send(file);});}
 $('analyze').addEventListener('click',async()=>{if(state.busy||!state.file)return;let config;try{config=JSON.parse($('config').value);}catch{return fail('The camera configuration is not valid JSON.');}$('error').hidden=true;state.result=null;$('results').hidden=true;busy(true);try{progress(0,'Preparing upload');const job=await api('/api/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.file.name,size:state.file.size,config,render:$('render').checked})});state.job=job.id;await uploadFile(job.id,state.file);sessionStorage.setItem('roadlens-job',job.id);await poll(job.id);}catch(error){fail(error.message);if(state.job)await fetch(`/api/jobs/${state.job}`,{method:'DELETE'}).catch(()=>{});busy(false);}});
@@ -99,5 +132,5 @@ function renderTeam(team){
     card.append(links);$('team-members').append(card);
   }
 }
-async function init(){try{state.info=await api('/api/info');$('connection').classList.add('ready');$('connection').lastChild.textContent=' Model server connected';$('profile').replaceChildren(...state.info.profiles.map(p=>{const option=el('option',p.label);option.value=p.id;return option;}));$('profile').disabled=false;$('profile').dispatchEvent(new Event('change'));if(!state.info.weights_ready)fail('Model weights are missing from the server. Please contact the site owner.');renderTeam(state.info.team);const previous=sessionStorage.getItem('roadlens-job');if(previous){state.job=previous;busy(true);try{await poll(previous);}catch{sessionStorage.removeItem('roadlens-job');busy(false);}}}catch(error){$('connection').lastChild.textContent=' Server offline';fail('The analysis server is unavailable. Please refresh the page or try again later.');}}
+async function init(){try{state.info=await api('/api/info');$('connection').classList.add('ready');$('connection').lastChild.textContent=' Model server connected';setupProfiles(state.info.profiles);if(!state.info.weights_ready)fail('Model weights are missing from the server. Please contact the site owner.');renderTeam(state.info.team);const previous=sessionStorage.getItem('roadlens-job');if(previous){state.job=previous;busy(true);try{await poll(previous);}catch{sessionStorage.removeItem('roadlens-job');busy(false);}}}catch(error){$('connection').lastChild.textContent=' Server offline';fail('The analysis server is unavailable. Please refresh the page or try again later.');}}
 init();
