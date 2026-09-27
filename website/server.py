@@ -21,8 +21,8 @@ from src.config import load_config, validate_config
 
 MAX_BYTES = 200_000_000  # 200 MB; enforced for metadata and streamed uploads.
 MAX_SECONDS = 600
-PROFILES = {'camera.json': 'C3896 daytime framing · reviewed geometry v2',
-            'uncalibrated.json': 'Nighttime framing · configure before detecting events'}
+PROFILES = {'camera.json': 'Daytime framing',
+            'uncalibrated.json': 'Nighttime framing'}
 
 
 class Jobs:
