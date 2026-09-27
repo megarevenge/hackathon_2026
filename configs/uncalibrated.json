@@ -1,0 +1,13 @@
+{
+  "name": "Uncalibrated camera",
+  "calibrated": false,
+  "road": [],
+  "crosswalks": [],
+  "queue_zones": [],
+  "lanes": [],
+  "sample_fps": 8,
+  "confidence": 0.1,
+  "image_size": 640,
+  "device": "cpu",
+  "risk_enabled": false
+}
